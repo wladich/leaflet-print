@@ -34,9 +34,9 @@ L.Yandex = L.Class.extend({
 		// set up events
 		map.on('viewreset', this._resetCallback, this);
 
-		this._limitedUpdate = L.Util.limitExecByInterval(this._update, 150, this);
+//        this._limitedUpdate = L.Util.limitExecByInterval(this._update, 150, this);
 		map.on('move', this._update, this);
-
+		map.on('zoomanim', this._onZoomAnim, this);
 		map._controlCorners['bottomright'].style.marginBottom = "3em";
 
 		this._reset();
@@ -45,11 +45,9 @@ L.Yandex = L.Class.extend({
 
 	onRemove: function(map) {
 		this._map._container.removeChild(this._container);
-
 		this._map.off('viewreset', this._resetCallback, this);
-
 		this._map.off('move', this._update, this);
-
+		this._map.off('zoomanim', this._onZoomAnim, this);        
 		map._controlCorners['bottomright'].style.marginBottom = "0em";
 	},
 
@@ -148,6 +146,13 @@ L.Yandex = L.Class.extend({
 		if (force || this._yandex.getZoom() != zoom)
 			this._yandex.setZoom(zoom);
 		this._yandex.setCenter(_center);
+	},
+
+
+	_onZoomAnim: function(e){
+		var center = [e.center.lat, e.center.lng];
+		var zoom = e.zoom;
+		this._yandex.setCenter(center, zoom, {duration: 250});
 	},
 
 	_resize: function(force) {
