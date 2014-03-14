@@ -232,7 +232,6 @@ L.Control.PrintPages = L.Control.extend({
     },
     
     _downloadPDF: function(){
-//        this.getBestZoom();
         this.startProgress();
         var zoom = this.getSourceZoom();
         if (zoom == 'auto') {zoom = 12};

@@ -21,10 +21,6 @@ L.Map.prototype.makeRectangleImage = function(width_px, height_px, center, zoom,
     Object.keys(this._layers).sort().forEach(
         function(k){
             var layer = this._layers[k];
-            if (layer.getMaxZoomAtPoint) {
-                layer.getMaxZoomAtPoint(this.getCenter()).done(function(res){console.log(res)});
-            }
-            return;
             if (layer.clone && layer.getTilesInfo){
                 var layer_copy = layer.clone();
                 temp_map.addLayer(layer_copy);
