@@ -1,0 +1,152 @@
+.offscreen-map {
+    position: absolute;
+    top: 20px;
+    left: 200000px; 
+
+}
+
+.paper-sheet-label {
+    color: #ff7800;
+    text-align: center;
+    opacity: 0.8;
+}
+
+.leaflet-printpages-dialog{
+    background-color: white;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    color: #333333;
+    padding: 6px 10px 6px 6px;
+    line-height: 1.0;
+}
+
+a.print-page-dialog-template-link {
+    color: #999;
+    border-bottom: 1px dashed #999;
+    text-decoration: none;    
+    cursor: pointer;
+    margin-right: 5pt;
+}
+
+.leaflet-printpages-dialog p{
+    margin: 0 0 5pt 0;
+}
+
+.leaflet-printpages-dialog table {
+    border-spacing: 0;
+    border-collapse: collapse;    
+}
+
+.leaflet-printpages-dialog table.margincells td{
+    padding: 0;
+}
+
+.leaflet-printpages-dialog table td{
+    padding: 5pt 3pt;
+}
+
+.leaflet-printpages-dialog input {
+    padding: 0 2pt;
+    margin: 0;
+    border: 1px solid #777;
+    border-radius: 3px 3px 3px 3px;    
+}
+
+table.form > tbody > tr {
+    border-bottom: 1px solid #eee;
+}
+table.form > tbody > tr:last-child {
+    border-bottom: none;
+}
+
+.print-page-dialog-download-pane{
+    text-align: center;
+}
+
+.print-page-dialog-download-pane > * {
+    border-radius: 4px 4px 4px 4px;   
+    border: 1px  solid #ccc;
+}
+
+
+a.print-page-dialog-download-link{
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 22px;
+    color: #444;
+    padding: 5px 10px;
+}
+
+.progress-unknown {
+    width: 22px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.progress-unknown-bar {
+    line-height: 22px;
+    width: 22px;
+    -webkit-animation: anim1 0.5s linear 0 infinite;
+    animation: anim1 0.5s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+}
+@keyframes anim1 {
+    from {transform: rotate(0deg);}
+    to {transform: rotate(360deg);}
+}
+
+@-webkit-keyframes anim1 {
+    from {-webkit-transform: rotate(0deg);}   
+    to {-webkit-transform: rotate(360deg);}
+}
+
+.hidden {
+    display: none;
+}
+
+.progress {
+    width: 100%;
+    height: 10px;
+    padding: 6px 4px;
+}
+
+.progress-bar {
+    width: 70%;
+    background-color: #999;
+    height: 10px;
+}
+
+.print-page-bar a {
+    width: 26px;
+    height: 26px;
+    line-height: 26px;
+    border-radius: 4px 4px 4px 4px;   
+    display: block;
+    border: 1px  solid #ccc;
+    float: left;
+    margin-right: 4pt;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    cursor: pointer;    
+}
+
+a.print-page-add-landscape {
+    background-image: url('images/add-page-horiz.png');
+}
+
+a.print-page-add-portrait {
+    background-image: url('images/add-page-vert.png');
+}
+
+.sheet-popup a {
+    border: 1px solid #ccc;
+    border-radius: 4px 4px 4px 4px;   
+    padding: 8px;
+    margin: 4px;
+    color: #333;
+    cursor: pointer;
+}
+.sheet-popup a:hover {
+    background-color: #F4F4F4;
+}
