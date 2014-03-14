@@ -12,7 +12,8 @@ L.Yandex = L.Class.extend({
 		maxZoom: 18,
 		attribution: '',
 		opacity: 1,
-		traffic: false
+		traffic: false,
+		yandexMapAutoSwitch: true
 	},
 
 	// Possible types: map, satellite, hybrid, publicMap, publicMapHybrid
@@ -113,7 +114,7 @@ L.Yandex = L.Class.extend({
 					this._initMapObject, this);
 			}
 
-		var map = new ymaps.Map(this._container, {center: [0,0], zoom: 0, behaviors: []});
+		var map = new ymaps.Map(this._container, {center: [0,0], zoom: 0, behaviors: []}, {yandexMapAutoSwitch: this.options.yandexMapAutoSwitch});
 
 		if (this.options.traffic)
 			map.controls.add(new ymaps.control.TrafficControl({shown: true}));
