@@ -1,7 +1,7 @@
 function get(url){
     return new Promise(function(resolve){
         var xhr = new XMLHttpRequest();
-        xhr.timeout = 5000;
+        xhr.timeout = 10000;
         xhr.open('GET', url);
         xhr.responseType = 'arraybuffer';
         xhr.onreadystatechange = function(e){
@@ -41,13 +41,18 @@ function loadImage(url){
                 return loadImage(url);
             } 
             var image = new Image();
-            image.src = 'data:image/png;base64,' + btoa(raw);
+            return new Promise(function(resolve){
+                image.onload=function(){
+                    resolve(image);
+                };
+                image.src = 'data:image/png;base64,' + btoa(raw);
+            });
             return image;
         } else if (req.status == 404) {
             return null
         } else {
             console.log('Retrying', url);
-            return later(200, loadImage, null, [url]);
+            return later(1000, loadImage, null, [url]);
         }
     });
 }
