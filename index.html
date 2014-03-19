@@ -35,9 +35,9 @@
 
         <script>
             var overlays = {
-                "poehali001m": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9}),
-                "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}", {tms: true}),
-                "map_podm": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14})
+                "poehali001m": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9, supports_cors: true}),
+                "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}", {tms: true, supports_cors: true}),
+                "map_podm": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14, supports_cors: true})
             };
 
             var baseMaps = {
