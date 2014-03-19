@@ -19,7 +19,7 @@ Mosaic = L.Class.extend({
         this.images_xy.push([x, y, size]);
     },
     
-    getData: function(width, height) {
+    getData: function() {
         return Promise.all(this.images).then(
             function(images){
                 var ctx = this.canvas.getContext('2d');
@@ -33,20 +33,8 @@ Mosaic = L.Class.extend({
                     } else {
                         console.log('Image null');
                     }
-                    
                 }
-                var canvas2 = L.DomUtil.create('canvas');
-                canvas2.width = width;
-                canvas2.height = height;
-                var ctx2 = canvas2.getContext('2d');
-                ctx2.rect(0, 0, width, height);
-                ctx2.fillStyle="yellow";
-                ctx2.fill();
-                ctx2.drawImage(this.canvas, 0, 0, width, height)
-                var data = canvas2.toDataURL("image/jpeg");
-                data = data.substring(data.indexOf(',') + 1);
-                data = atob(data);
-                return {width: width, height: height, data: data};
+                return this.canvas;
             }.bind(this)
         );
     }

@@ -195,7 +195,6 @@ L.Control.PrintPages = L.Control.extend({
             L.DomUtil.removeClass(elementByCss('div.progress', this.container), 'hidden');
             elementByCss('div.progress-bar', this.container).style.setProperty('width', this._progress_done * 100 / this._progress_total + '%')
         }
-//        console.log('Progress', this._progress_done, this._progress_total, Math.round(this._progress_done * 100 / this._progress_total) + '%');
     },
 
     startProgress: function(){
@@ -211,7 +210,7 @@ L.Control.PrintPages = L.Control.extend({
         L.DomUtil.removeClass(elementByCss('a.print-page-dialog-download-link', this.container), 'hidden');
     },
     
-    getBestZoom: function() {
+    getBestZooms: function() {
         var reference_lat;
         if (this.sheets.length > 0) {
             var reference_lat = 1e20;
@@ -226,34 +225,45 @@ L.Control.PrintPages = L.Control.extend({
             reference_lat = this._map.getCenter().lat;
         };
         var target_meters_per_pixel = this.getMapScale() / 100 / (this.getResolution() / 2.54) ;
-        var map_units_per_pixel = target_meters_per_pixel * Math.cos(reference_lat * Math.PI / 180);
-        var zoom = Math.ceil(Math.log(40075016.4 / 256 / map_units_per_pixel)/Math.LN2);
-        console.log(zoom);
+        var map_units_per_pixel = target_meters_per_pixel / Math.cos(reference_lat * Math.PI / 180);
+        var zoom_sat = Math.ceil(Math.log(40075016.4 / 256 / map_units_per_pixel)/Math.LN2);
+
+        target_meters_per_pixel = this.getMapScale() / 100 / (90 / 2.54) ;
+        map_units_per_pixel = target_meters_per_pixel / Math.cos(reference_lat * Math.PI / 180);
+        var zoom_map = Math.round(Math.log(40075016.4 / 256 / map_units_per_pixel)/Math.LN2);
+        return [zoom_sat, zoom_map];
     },
     
     _downloadPDF: function(){
         this.startProgress();
-        var zoom = this.getSourceZoom();
-        if (zoom == 'auto') {zoom = 12};
         var resolution = this.getResolution();
         var paper_size = this.getPaperSize();
         var paper_width_pixels = Math.round(paper_size[0] * resolution / 25.4);
         var paper_height_pixels = Math.round(paper_size[1] * resolution / 25.4);
         var this_ = this;
-        
-        var images_args = this.sheets
-            .map(function(sheet){
-                var size = sheet.getSizeInPixels(zoom);
-                var rotated = sheet.isRotated();
-                var image_width = rotated ? paper_height_pixels : paper_width_pixels;
-                var image_height = rotated ? paper_width_pixels : paper_height_pixels;
-                return [size[0], size[1], sheet.getCenter(), zoom, image_width, image_height, this_.notifyProgress.bind(this_)];
-            });
-        var images_data = images_args    
-            .map(function(args){
-                return this_._map.makeRectangleImage.apply(this_._map, args)
-            });
+        var zoom = this.getSourceZoom();
+        var zooms;
+        if (zoom == 'auto') {
+            zooms = this.getBestZooms();
+        } else {
+            zooms = [zoom, zoom];
+        }
+        var images_data = this.sheets.map(
+            function(sheet){
+                var image_width, image_height;
+                if (sheet.isRotated()) {
+                     image_width = paper_height_pixels;
+                     image_height  = paper_width_pixels;
+                 } else {
+                     image_width = paper_width_pixels;
+                     image_height  = paper_height_pixels;
+                 }
+                return makeMapRectangleImage(this_._map, sheet.getLatLngBounds(), 
+                    zooms, zoom != 'auto',
+                    image_width, image_height, this_.notifyProgress.bind(this_));
+            });                
         Promise.all(images_data).done(function(images){
+            console.log('Data ready')
             var pdf_data = buildPDF(images, resolution);
             downloadFile(map.pdf, 'application/pdf', pdf_data);
             this_.stopProgress();

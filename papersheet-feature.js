@@ -55,7 +55,7 @@ L.PaperSheet = L.FeatureGroup.extend({
         this._updatePositionFromMarker();
     },
     
-    _getSheetLatLngBounds: function() {
+    getLatLngBounds: function() {
         var latlng = this.getCenter();
         var x = latlng.lng;
         var y = latlng.lat;
@@ -65,21 +65,21 @@ L.PaperSheet = L.FeatureGroup.extend({
         var height = paper_height * this.options.map_scale_denominator / 1000 / 111319.49;
         var latlng_sw = [y - height / 2, x - width / 2];
         var latlng_ne = [y + height / 2, x + width / 2];
-        return [latlng_sw, latlng_ne]
+        return L.latLngBounds([latlng_sw, latlng_ne]);
     },
 
     _updatePositionFromMarker: function(){
         if (this._map) {
-            var sheet_lat_lng_bounds = this._getSheetLatLngBounds();
+            var sheet_lat_lng_bounds = this.getLatLngBounds();
             this._rect.setBounds(sheet_lat_lng_bounds);
-            var pixel_size = this._map.boundsToSizeInPixels(sheet_lat_lng_bounds);
+            var pixel_size = this._map.latLngBoundsToSizeInPixels(sheet_lat_lng_bounds);
             var label = this._marker._icon;
-            label.style.width = pixel_size[0] + 'px';
-            label.style.marginLeft = -pixel_size[0]/2 + 'px';
-            label.style.height = pixel_size[1] + 'px';
-            label.style.marginTop = -pixel_size[1] / 2 + 'px';
-            label.style.lineHeight = pixel_size[1]  + 'px';
-            label.style.fontSize = Math.min(pixel_size[1] / 2, 250) + 'px';
+            label.style.width = pixel_size.x + 'px';
+            label.style.marginLeft = -pixel_size.x/2 + 'px';
+            label.style.height = pixel_size.y + 'px';
+            label.style.marginTop = -pixel_size.y / 2 + 'px';
+            label.style.lineHeight = pixel_size.y  + 'px';
+            label.style.fontSize = Math.min(pixel_size.y / 2, 250) + 'px';
             return
         }
     },
@@ -89,7 +89,7 @@ L.PaperSheet = L.FeatureGroup.extend({
     },
 
     getSizeInPixels: function(zoom) {
-        var sheet_lat_lng_bounds = this._getSheetLatLngBounds();        
+        var sheet_lat_lng_bounds = this.getLatLngBounds();        
         var pixel_size = this._map.boundsToSizeInPixels(sheet_lat_lng_bounds, zoom);
         return pixel_size;
     },

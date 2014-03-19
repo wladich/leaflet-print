@@ -20,12 +20,14 @@
         <script src="thirdparty/Yandex.js"></script>
         <script src="thirdparty/Google.js"></script>        
         
+        <script src="ext-leaflet/LatLngBounds.js"></script>
         <script src="ext-leaflet/TileLayer.js"></script>
         <script src="ext-leaflet/Yandex.js"></script>
         <script src="ext-leaflet/Google.js"></script>
         <script src="ext-leaflet/Map.js"></script>
         
         <script src="image-mosaic.js"></script>        
+        <script src="map-to-image.js"></script>        
         <script src="papersheet-feature.js"></script>
         <script src="print-pages-control.js"></script>
 
@@ -37,10 +39,10 @@
             };
 
             var baseMaps = {
-                 'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false}),
-                 'Yandex Public': new L.Yandex('publicMap'),
+                 'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false, 'scaleDependent': true}),
+                 'Yandex Public': new L.Yandex('publicMap', {'scaleDependent': true}),
                  'Yandex Sat': new L.Yandex('satellite'),
-                 'Google': new L.Google('ROADMAP', {supports_cors: true}),
+                 'Google': new L.Google('ROADMAP', {supports_cors: true, 'scaleDependent': true}),
                  'Google Sat': new L.Google('SATELLITE', {supports_cors: true})
             }
 
