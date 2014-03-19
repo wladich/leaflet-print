@@ -3,17 +3,19 @@ L.PaperSheet = L.FeatureGroup.extend({
         this.options = options;
         this._rect = L.rectangle([[0,0], [1,1]], {color: "#ff7800", weight: 1});
         var icon = L.divIcon({className: "paper-sheet-label", html: options.label});
-        this._marker = L.marker(latlng, {icon: icon,  draggable: true});
+        this._marker = L.marker(latlng, {icon: icon,  draggable: true,
+            contextmenu: true,
+            contextmenuItems: [
+            {
+                text: 'Rotate',
+                callback: this.rotate.bind(this)
+            }, {
+                text: 'Delete',
+                callback: this.remove.bind(this)
+            }]
+        });
         this._marker.on('drag', this._updatePositionFromMarker, this);
         L.FeatureGroup.prototype.initialize.call(this, [this._rect, this._marker]);
-        var popupContainer = L.DomUtil.create('div', 'sheet-popup');
-        var a = L.DomUtil.create('a', '', popupContainer);
-        a.innerHTML = 'Rotate';
-        a.onclick = function() {this.rotate(); this._map.closePopup()}.bind(this);
-        var a = L.DomUtil.create('a', '', popupContainer);
-        a.innerHTML = 'Delete';
-        a.onclick = this.remove.bind(this);
-        this.bindPopup(popupContainer);
     },
 
     
