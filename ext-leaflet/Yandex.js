@@ -35,15 +35,17 @@ L.Yandex.include({
                             tiles_in_page += 1;
                         };
                         if (expected_tiles === undefined) {
-                            while (img_rel_left < 0) {img_rel_left += 256};
-                            while (img_rel_top < 0) {img_rel_top += 256};
+                            var x = img_rel_left;
+                            var y = img_rel_top;
+                            while (x < 0) {x += 256};
+                            while (y < 0) {y += 256};
                             var map_size = this_._map._size;
-                            var phase = img_rel_left % 256;
+                            var phase = x % 256;
                             var t_width = phase? 1 : 0;
                             if (phase < map_size.x) {
                                 t_width += Math.ceil((map_size.x - phase) / 256);
                             }
-                            var phase = img_rel_top % 256;
+                            var phase = y % 256;
                             var t_height = phase? 1 : 0;
                             if (phase < map_size.y) {
                                 t_height += Math.ceil((map_size.y - phase) / 256);
