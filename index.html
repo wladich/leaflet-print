@@ -44,8 +44,10 @@
                  'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false, 'scaleDependent': true}),
                  'Yandex Public': new L.Yandex('publicMap', {'scaleDependent': true}),
                  'Yandex Sat': new L.Yandex('satellite'),
+                 'Yandex Sat Hybrid': new L.Yandex('hybrid', {'scaleDependent': true}),
                  'Google': new L.Google('ROADMAP', {supports_cors: true, 'scaleDependent': true}),
-                 'Google Sat': new L.Google('SATELLITE', {supports_cors: true})
+                 'Google Sat': new L.Google('SATELLITE', {supports_cors: true}),
+                 'Google Sat Hybrid': new L.Google('HYBRID', {supports_cors: true, 'scaleDependent': true})
             }
 
             function updateMapSize() {
@@ -54,7 +56,7 @@
             
             function setUpMap(){
                  updateMapSize();
-                 var map = new L.Map('map', {fadeAnimation: false});
+                 var map = new L.Map('map', {fadeAnimation: false, contextmenu: true});
                  map.setView([55, 36], 9);
 
                  L.control.layers(baseMaps, overlays, {collapsed: false}).addTo(map);
@@ -66,8 +68,6 @@
 
             window.onload = setUpMap;
             window.onresize = updateMapSize;
-        
-            
         </script>        
     </header>
     <body style="margin: 0">
