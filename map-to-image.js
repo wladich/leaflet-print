@@ -58,6 +58,9 @@ combineImages = function(images, width, height) {
     canvas.width = width;
     canvas.height = height;
     var ctx = canvas.getContext('2d');
+    ctx.rect(0, 0, width, height);
+    ctx.fillStyle="white";
+    ctx.fill();       
     for (var i=0; i < images.length; i++) {
         ctx.drawImage(images[i], 0, 0, width, height);                
     }
