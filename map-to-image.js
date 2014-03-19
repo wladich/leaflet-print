@@ -102,7 +102,12 @@ makeMapRectangleImage = function(map, ll_bounds, zooms, strict_zoom, target_widt
         var layer = map._layers[layer_ids[i]];
         if (layerSupportsMosaicing(layer)){
             var zoom = layer.options.scaleDependent ? zooms[1] : zooms[0];
-            var layer_promise = calcLayerDisplayedZooms(layer, ll_bounds, zoom).then(
+            var layer_promise;
+            if (strict_zoom)
+                layer_promise = Promise.from([zoom]);
+            else
+                layer_promise = calcLayerDisplayedZooms(layer, ll_bounds, zoom);
+            layer_promise = layer_promise.then(
                 function(){
                     var layer_ = layer;
                     return function(displayed_zooms){
