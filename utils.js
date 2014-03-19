@@ -17,6 +17,14 @@ function checkImage(s){
             (s.substring(0, 2) == '\xff\xd8' && s.substring(s.length-2) == '\xff\xd9')
 }
 
+function later(time, f, ctx, args) {
+    return new Promise(function(resolve){
+        setTimeout(function(){
+            resolve(f.apply(ctx, args));
+        }, time)
+    })
+}
+
 function loadImage(url){
     // TODO: handle errors other then 404 (500, 403)
     // TODO: Limit retries number
@@ -39,7 +47,7 @@ function loadImage(url){
             return null
         } else {
             console.log('Retrying', url);
-            return loadImage(url);
+            return later(200, loadImage, null, [url]);
         }
     });
 }
