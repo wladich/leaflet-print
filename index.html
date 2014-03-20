@@ -33,6 +33,12 @@
         <script src="papersheet-feature.js"></script>
         <script src="print-pages-control.js"></script>
 
+        <style>
+            body, html, #map {
+             height: 100%;
+            }
+        </style>
+
         <script>
             var overlays = {
                 "poehali001m": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9, supports_cors: true}),
@@ -53,12 +59,8 @@
                  'Google Sat Hybrid': new L.Google('HYBRID', {supports_cors: true, 'scaleDependent': true})
             }
 
-            function updateMapSize() {
-                document.getElementById('map').style.height=(window.innerHeight)+'px';
-            }
             
             function setUpMap(){
-                 updateMapSize();
                  var map = new L.Map('map', {fadeAnimation: false, contextmenu: true});
                  map.setView([55, 36], 9);
 
@@ -67,13 +69,11 @@
                  var hash = new L.Hash(map);
                  (new L.Control.PrintPages()).addTo(map);
             }
-
             window.onload = setUpMap;
-            window.onresize = updateMapSize;
         </script>        
     </header>
     <body style="margin: 0">
-        <div id="map" style="height: 500px"></div>
+        <div id="map"></div>
 
     </body>
 </html>
