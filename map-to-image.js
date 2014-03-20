@@ -40,7 +40,8 @@ makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
                         var tile_size = tile[3];
                         if (x > -tile_size && y > -tile_size && x < src_pixel_size.x && y < src_pixel_size.y) {
                             if (!layer.options.supports_cors) {
-                                url = 'http://www.corsproxy.com/' + url.replace(/^https?:\/\//, '');
+//                                url = 'http://www.corsproxy.com/' + url.replace(/^https?:\/\//, '');
+                                url = 'http://proxy.wladich.tk/' + url.replace(/^https?:\/\//, '');
                             };
                             progress(0, 1);
                             mosaic.putImage(url, x, y, tile_size);
