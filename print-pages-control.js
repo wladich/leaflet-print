@@ -79,34 +79,45 @@ L.Control.PrintPages = L.Control.extend({
             <tr>\
                 <td colspan="2">\
                     <div class="print-page-dialog-download-pane">\
-                        <a class="print-page-dialog-download-link" name="download-pdf" >Download PDF</a>\
+                        <a class="print-page-dialog-download-link" name="download-pdf">Download PDF</a>\
                         <div class="progress-unknown hidden"><div class="progress-unknown-bar">|</div></div>\
-                        <div class="progress hidden"><div class="progress-bar"></div></div>\
+                        <div class="progress hidden"><div class="progress-bar-bkg"><div class="progress-bar"></div></div>\
                     </div>\
                 </td>\
             </tr>\
         </table>\
         ';
         var this_control = this;
-        elementsByCss('p.print-page-sizes a.print-page-dialog-template-link', dialogContainer).forEach(function(x){
-            x.onclick = function(){
-                elementByCss('input[name="pagewidth"]', dialogContainer).value = this.getAttribute('pagewidth');
-                elementByCss('input[name="pageheight"]', dialogContainer).value = this.getAttribute('pageheight');
+        this.page_width_field = dialogContainer.querySelector('input[name="pagewidth"]');
+        this.page_height_field = dialogContainer.querySelector('input[name="pageheight"]');
+        this.map_scale_field = dialogContainer.querySelector('input[name="mapscale"]');
+        this.resolution_field = dialogContainer.querySelector('input[name="resolution"]');
+        this.src_zoom_field = dialogContainer.querySelector('select[name="srczoom"]');
+        this.download_button = dialogContainer.querySelector('a[name="download-pdf"]');
+        var page_format_links = dialogContainer.querySelectorAll('p.print-page-sizes a');
+        this.progress_unknown_icon = dialogContainer.querySelector('.progress-unknown');
+        this.progress_container = dialogContainer.querySelector('.progress');
+        this.progress_bar = dialogContainer.querySelector('.progress-bar');
+        var map_scale_links = dialogContainer.querySelectorAll('p.print-page-scales a');
+        for (var i=0; i<page_format_links.length; i++) {
+            page_format_links[i].onclick = function() {
+                this_control.page_width_field.value = this.getAttribute('pagewidth');
+                this_control.page_height_field.value = this.getAttribute('pageheight');
                 this_control._changePaperSize();
             };
-        });
-        elementsByCss('p.print-page-scales a.print-page-dialog-template-link', dialogContainer).forEach(function(x){
-            x.onclick = function(){
-                elementByCss('input[name="mapscale"]', dialogContainer).value = this.getAttribute('mapscale');
+        };
+        for (var i=0; i<map_scale_links.length; i++) {
+            map_scale_links[i].onclick = function(){
+                this_control.map_scale_field.value = this.getAttribute('mapscale');
                 this_control._changeMapScale();
-            }
-        });
-        elementByCss('.print-page-add-portrait', dialogContainer).onclick = this._addSheetPortrait.bind(this);
-        elementByCss('.print-page-add-landscape', dialogContainer).onclick = this._addSheetLandscape.bind(this);
-        elementByCss('input[name="pagewidth"]', dialogContainer).onchange = this._changePaperSize.bind(this);
-        elementByCss('input[name="pageheight"]', dialogContainer).onchange = this._changePaperSize.bind(this);
-        elementByCss('input[name="mapscale"]', dialogContainer).onchange = this._changeMapScale.bind(this);                
-        elementByCss('a[name="download-pdf"]', dialogContainer).onclick = this._downloadPDF.bind(this);
+            };
+        };
+        dialogContainer.querySelector('.print-page-add-portrait').onclick = this._addSheetPortrait.bind(this);
+        dialogContainer.querySelector('.print-page-add-landscape').onclick = this._addSheetLandscape.bind(this);
+        this.download_button.onclick = this._downloadPDF.bind(this);
+        this.page_width_field.onchange = this._changePaperSize.bind(this);
+        this.page_height_field.onchange = this._changePaperSize.bind(this);
+        this.map_scale_field.onchange = this._changeMapScale.bind(this);                
     },
     
     addTo: function(map){
@@ -124,24 +135,19 @@ L.Control.PrintPages = L.Control.extend({
     },
     
     getPaperSize: function() {
-        return [elementByCss('input[name="pagewidth"]', this._container).value,
-                elementByCss('input[name="pageheight"]', this._container).value];
+        return [this.page_width_field.value, this.page_height_field.value];
     },
     getMargins: function() {},
     getResolution: function() {
-        return elementByCss('input[name="resolution"]', this._container).value;
+        return this.resolution_field.value;
     },
 
     getMapScale: function(){
-        return elementByCss('input[name="mapscale"]', this._container).value;
+        return this.map_scale_field.value;
     },
     
     getSourceZoom: function(){
-        return elementByCss('select[name="srczoom"]', this._container).value;
-    },
-    
-    setStatusText: function(text){
-        elementByCss('div.print-page-status-bar', this._container).innerHTML = text;
+        return this.src_zoom_field.value;
     },
     
     _addSheetPortrait: function() {
@@ -193,23 +199,23 @@ L.Control.PrintPages = L.Control.extend({
         this._progress_total += total_inc || 0;
         this._progress_done += progress_inc || 0;
         if (this._progress_done) {
-            L.DomUtil.addClass(elementByCss('div.progress-unknown', this.container), 'hidden');
-            L.DomUtil.removeClass(elementByCss('div.progress', this.container), 'hidden');
-            elementByCss('div.progress-bar', this.container).style.setProperty('width', this._progress_done * 100 / this._progress_total + '%')
+            L.DomUtil.addClass(this.progress_unknown_icon, 'hidden');
+            L.DomUtil.removeClass(this.progress_container, 'hidden');
+            this.progress_bar.style.setProperty('width', this._progress_done * 100 / this._progress_total + '%')
         }
     },
 
     startProgress: function(){
         this._progress_done = 0;
         this._progress_total = 0;
-        L.DomUtil.addClass(elementByCss('a.print-page-dialog-download-link', this.container), 'hidden');
-        L.DomUtil.removeClass(elementByCss('div.progress-unknown', this.container), 'hidden');
+        L.DomUtil.addClass(this.download_button, 'hidden');
+        L.DomUtil.removeClass(this.progress_unknown_icon, 'hidden');
     },
     
     stopProgress: function(){
-        L.DomUtil.addClass(elementByCss('div.progress-unknown', this.container), 'hidden');
-        L.DomUtil.addClass(elementByCss('div.progress', this.container), 'hidden');
-        L.DomUtil.removeClass(elementByCss('a.print-page-dialog-download-link', this.container), 'hidden');
+        L.DomUtil.addClass(this.progress_container, 'hidden');
+        L.DomUtil.addClass(this.progress_unknown_icon, 'hidden');
+        L.DomUtil.removeClass(this.download_button, 'hidden');
     },
     
     getBestZooms: function() {

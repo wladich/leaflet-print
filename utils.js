@@ -66,14 +66,6 @@ function format(tpl,o) {
     return tpl;
 }
 
-function elementsByCss(selector, element) {
-    var nodes = (element || document.body).querySelectorAll(selector);
-    return Array.prototype.slice.call(nodes);
-}
-
-function elementByCss(selector, element) {
-    return (element || document.body).querySelector(selector);
-}
 
 function downloadFile(fileName, mimeType, data){
     var length = data.length;
