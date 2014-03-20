@@ -63,8 +63,7 @@
                  map.setView([55, 36], 9);
 
                  L.control.layers(baseMaps, overlays, {collapsed: false}).addTo(map);
-                 map.addLayer(baseMaps['Yandex']);
-                 map.addLayer(overlays['map_podm']);
+                 map.addLayer(baseMaps['OpenStreetMap']);
                  var hash = new L.Hash(map);
                  (new L.Control.PrintPages()).addTo(map);
             }
