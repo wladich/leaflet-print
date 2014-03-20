@@ -39,7 +39,7 @@ makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
                         var y = tile[2];
                         var tile_size = tile[3];
                         if (x > -tile_size && y > -tile_size && x < src_pixel_size.x && y < src_pixel_size.y) {
-                            if (!layer.options.supports_cors) {
+                            if (layer.options.noCors) {
                                 url = 'http://proxy.wladich.tk/' + url.replace(/^https?:\/\//, '');
                             };
                             progress(0, 1);

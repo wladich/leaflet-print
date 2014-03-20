@@ -41,19 +41,19 @@
 
         <script>
             var overlays = {
-                "poehali001m": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9, supports_cors: true}),
-                "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}", {tms: true, supports_cors: true}),
-                "map_podm": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14, supports_cors: true})
+                "poehali001m": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9}),
+                "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}", {tms: true}),
+                "map_podm": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14})
             };
 
             var baseMaps = {
-                 'OpenStreetMap': L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {supports_cors: true, 'scaleDependent': true}),
+                 'OpenStreetMap': L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {'scaleDependent': true}),
                  'ESRI Sat': L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
-                    {supports_cors: true, maxZoom: 18, maxNativeZoom: 17}),
-                 'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false, 'scaleDependent': true}),
-                 'Yandex Public': new L.Yandex('publicMap', {'scaleDependent': true}),
-                 'Yandex Sat': new L.Yandex('satellite'),
-                 'Yandex Sat Hybrid': new L.Yandex('hybrid', {'scaleDependent': true}),
+                    {maxZoom: 18, maxNativeZoom: 17}),
+                 'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false, 'scaleDependent': true, noCors: true}),
+                 'Yandex Public': new L.Yandex('publicMap', {'scaleDependent': true, noCors: true}),
+                 'Yandex Sat': new L.Yandex('satellite', {noCors: true}),
+                 'Yandex Sat Hybrid': new L.Yandex('hybrid', {'scaleDependent': true, noCors: true}),
                  'Google': new L.Google('ROADMAP', {supports_cors: true, 'scaleDependent': true}),
                  'Google Sat': new L.Google('SATELLITE', {supports_cors: true}),
                  'Google Sat Hybrid': new L.Google('HYBRID', {supports_cors: true, 'scaleDependent': true})
