@@ -27,21 +27,19 @@ L.Control.PrintPages = L.Control.extend({
                     x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
                 </td>\
             </tr>\
-<!--\
             <tr>\
                 <td>Margin</td>\
                 <td>\
                     <table class="margincells">\
-                        <tr><td></td><td><input type="text" size="1" pattern="\\d+" maxlength="2" placeholder="top" value="3"></td><td></td></tr>\
+                        <tr><td></td><td><input name="margin-top" "type="text" size="1" pattern="\\d+" maxlength="2" placeholder="top" value="3"></td><td></td></tr>\
                         <tr>\
-                            <td><input type="text" size="1" pattern="\\d+" maxlength="2" placeholder="left" value="3"></td>\
-                            <td></td><td><input type="text" size="1" pattern="\\d+" maxlength="2" placeholder="right" value="3"> mm</td>\
+                            <td><input name="margin-left" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="left" value="3"></td>\
+                            <td></td><td><input name="margin-right" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="right" value="3"> mm</td>\
                         </tr>\
-                        <tr><td></td><td><input type="text" size="1" pattern="\\d+" maxlength="2" placeholder="bottom" value="3"></td><td></td></tr>\
+                        <tr><td></td><td><input name="margin-bottom" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="bottom" value="3"></td><td></td></tr>\
                     </table>\
                 </td>\
             </tr>\
--->\
             <tr>\
                 <td>Resolution</td>\
                 <td><input type="text" size="4" pattern="\\d+" maxlength="4" value=300 name="resolution"> dpi</td>\
@@ -94,11 +92,18 @@ L.Control.PrintPages = L.Control.extend({
         this.resolution_field = dialogContainer.querySelector('input[name="resolution"]');
         this.src_zoom_field = dialogContainer.querySelector('select[name="srczoom"]');
         this.download_button = dialogContainer.querySelector('a[name="download-pdf"]');
-        var page_format_links = dialogContainer.querySelectorAll('p.print-page-sizes a');
         this.progress_unknown_icon = dialogContainer.querySelector('.progress-unknown');
         this.progress_container = dialogContainer.querySelector('.progress');
         this.progress_bar = dialogContainer.querySelector('.progress-bar');
+        this.margin_fields = [
+            dialogContainer.querySelector('input[name="margin-top"]'),
+            dialogContainer.querySelector('input[name="margin-right"]'),
+            dialogContainer.querySelector('input[name="margin-bottom"]'),
+            dialogContainer.querySelector('input[name="margin-left"]')
+            ];
+        var page_format_links = dialogContainer.querySelectorAll('p.print-page-sizes a');
         var map_scale_links = dialogContainer.querySelectorAll('p.print-page-scales a');
+
         for (var i=0; i<page_format_links.length; i++) {
             page_format_links[i].onclick = function() {
                 this_control.page_width_field.value = this.getAttribute('pagewidth');
@@ -117,7 +122,11 @@ L.Control.PrintPages = L.Control.extend({
         this.download_button.onclick = this._downloadPDF.bind(this);
         this.page_width_field.onchange = this._changePaperSize.bind(this);
         this.page_height_field.onchange = this._changePaperSize.bind(this);
-        this.map_scale_field.onchange = this._changeMapScale.bind(this);                
+        this.map_scale_field.onchange = this._changeMapScale.bind(this);
+        this.margin_fields[0].onchange = this._changePaperSize.bind(this);
+        this.margin_fields[1].onchange = this._changePaperSize.bind(this);
+        this.margin_fields[2].onchange = this._changePaperSize.bind(this);
+        this.margin_fields[3].onchange = this._changePaperSize.bind(this);
     },
     
     addTo: function(map){
@@ -135,15 +144,30 @@ L.Control.PrintPages = L.Control.extend({
     },
     
     getPaperSize: function() {
-        return [this.page_width_field.value, this.page_height_field.value];
+        var margins = this.getMargins();
+        var width = (this.page_width_field.value|0)  - margins.left - margins.right;
+        var height = (this.page_height_field.value|0) - margins.top - margins.bottom;
+        if (width < 10)
+            width = 10;
+        if (height < 10)
+            heigh = 10;
+        return [width, height];
     },
-    getMargins: function() {},
+    getMargins: function() {
+        return {
+            top: this.margin_fields[0].value|0,
+            right: this.margin_fields[1].value|0,
+            bottom: this.margin_fields[2].value|0,
+            left: this.margin_fields[3].value|0,
+            }
+    },
+    
     getResolution: function() {
-        return this.resolution_field.value;
+        return (this.resolution_field.value|0) || 100;
     },
 
     getMapScale: function(){
-        return this.map_scale_field.value;
+        return (this.map_scale_field.value|0) || 50000;
     },
     
     getSourceZoom: function(){
@@ -168,10 +192,8 @@ L.Control.PrintPages = L.Control.extend({
     
     _changePaperSize: function() {
         var size = this.getPaperSize();
-        var width = size[0];
-        var height = size[1];
         for (var i=0; i<this.sheets.length; i++){
-            this.sheets[i].setPaperSize(width, height);
+            this.sheets[i].setPaperSize(size[0], size[1]);
         }
     },
 
