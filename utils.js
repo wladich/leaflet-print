@@ -68,7 +68,7 @@ function format(tpl,o) {
 
 function elementsByCss(selector, element) {
     var nodes = (element || document.body).querySelectorAll(selector);
-    return Array.apply(null, nodes);
+    return Array.prototype.slice.call(nodes);
 }
 
 function elementByCss(selector, element) {
