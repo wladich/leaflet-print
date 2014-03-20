@@ -16,7 +16,7 @@
     border-radius: 5px 5px 5px 5px;
     box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
     color: #333333;
-    padding: 6px 10px 6px 6px;
+    padding: 6px 10px 6px 10px;
     line-height: 1.0;
 }
 
@@ -41,9 +41,6 @@ a.print-page-dialog-template-link {
     padding: 0;
 }
 
-.leaflet-printpages-dialog table td{
-    padding: 5pt 3pt;
-}
 
 .leaflet-printpages-dialog input {
     padding: 0 2pt;
@@ -52,10 +49,14 @@ a.print-page-dialog-template-link {
     border-radius: 3px 3px 3px 3px;    
 }
 
-table.form > tbody > tr {
+.leaflet-printpages-dialog table.form > tbody > tr > td{
+    padding: 5pt 1.5pt;
+}
+
+.leaflet-printpages-dialog table.form > tbody > tr {
     border-bottom: 1px solid #eee;
 }
-table.form > tbody > tr:last-child {
+.leaflet-printpages-dialog table.form > tbody > tr:last-child {
     border-bottom: none;
 }
 
@@ -77,6 +78,9 @@ a.print-page-dialog-download-link{
     padding: 5px 10px;
 }
 
+a.print-page-dialog-download-link:hover{
+    background-color: #f4f4f4;
+}
 .progress-unknown {
     width: 22px;
     margin-left: auto;
@@ -106,17 +110,24 @@ a.print-page-dialog-download-link{
 }
 
 .progress {
-    width: 100%;
+//    width: 100%;
+    margin-left: auto;
+    margin-right: auto;    
     height: 10px;
     padding: 6px 4px;
 }
 
 .progress-bar {
-    width: 70%;
-    background-color: #999;
+    width: 10%;
+    background-color: #888;
     height: 10px;
 }
 
+.progress-bar-bkg {
+    width: 100%;
+    background-color: #ccc;
+    height: 10px;
+}
 .print-page-bar a {
     width: 26px;
     height: 26px;
@@ -131,6 +142,10 @@ a.print-page-dialog-download-link{
     cursor: pointer;    
 }
 
+.print-page-bar a:hover {
+    background-color: #f4f4f4;
+}
+
 a.print-page-add-landscape {
     background-image: url('images/add-page-horiz.png');
 }
@@ -139,14 +154,3 @@ a.print-page-add-portrait {
     background-image: url('images/add-page-vert.png');
 }
 
-.sheet-popup a {
-    border: 1px solid #ccc;
-    border-radius: 4px 4px 4px 4px;   
-    padding: 8px;
-    margin: 4px;
-    color: #333;
-    cursor: pointer;
-}
-.sheet-popup a:hover {
-    background-color: #F4F4F4;
-}
