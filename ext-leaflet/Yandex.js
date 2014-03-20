@@ -55,7 +55,7 @@ L.Yandex.include({
                     }
                     
                     if (src && intersects_page) {
-                        src = src.replace(/^url\("?(.+)"?\)$/, '$1');
+                        src = src.replace(/^url\("?([^"]+)"?\)$/, '$1');
                         tiles.push([src, img_rel_left, img_rel_top, 256]);
                     }
                 }
