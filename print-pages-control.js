@@ -27,6 +27,7 @@ L.Control.PrintPages = L.Control.extend({
                     x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
                 </td>\
             </tr>\
+<!--\
             <tr>\
                 <td>Margin</td>\
                 <td>\
@@ -40,6 +41,7 @@ L.Control.PrintPages = L.Control.extend({
                     </table>\
                 </td>\
             </tr>\
+-->\
             <tr>\
                 <td>Resolution</td>\
                 <td><input type="text" size="4" pattern="\\d+" maxlength="4" value=300 name="resolution"> dpi</td>\
@@ -265,7 +267,7 @@ L.Control.PrintPages = L.Control.extend({
         Promise.all(images_data).done(function(images){
             console.log('Data ready')
             var pdf_data = buildPDF(images, resolution);
-            downloadFile(map.pdf, 'application/pdf', pdf_data);
+            downloadFile('map.pdf', 'application/pdf', pdf_data);
             this_.stopProgress();
             });
         
