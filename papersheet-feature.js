@@ -9,12 +9,13 @@ L.PaperSheet = L.FeatureGroup.extend({
             {
                 text: 'Rotate',
                 callback: this.rotate.bind(this)
-            }, {
+            }, {separator: 1, text: 'Hi'}, {
                 text: 'Delete',
                 callback: this.remove.bind(this)
             }]
         });
         this._marker.on('drag', this._updatePositionFromMarker, this);
+        this._marker.on('click', this.rotate, this)
         L.FeatureGroup.prototype.initialize.call(this, [this._rect, this._marker]);
     },
 
