@@ -1,7 +1,7 @@
 function get(url){
     return new Promise(function(resolve){
         var xhr = new XMLHttpRequest();
-        xhr.timeout = 10000;
+        xhr.timeout = 30000;
         xhr.open('GET', url);
         xhr.responseType = 'arraybuffer';
         xhr.onreadystatechange = function(e){
