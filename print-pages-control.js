@@ -10,8 +10,9 @@ L.Control.PrintPages = L.Control.extend({
             <tr>\
                 <td colspan="2">\
                     <div class="print-page-bar">\
-                        <a class="print-page-add-portrait"></a>\
-                        <a class="print-page-add-landscape"></a>\
+                        <a title="Add page in portrait orientation" class="print-page-add-portrait"></a>\
+                        <a title="Add page in landscape orientation" class="print-page-add-landscape"></a>\
+                        <a title="Remove all pages" class="print-page-dialog-remove-all-pages">X</a>\
                     </div>\
                 </td>\
             </tr>\
@@ -119,6 +120,7 @@ L.Control.PrintPages = L.Control.extend({
         };
         dialogContainer.querySelector('.print-page-add-portrait').onclick = this._addSheetPortrait.bind(this);
         dialogContainer.querySelector('.print-page-add-landscape').onclick = this._addSheetLandscape.bind(this);
+        dialogContainer.querySelector('a.print-page-dialog-remove-all-pages').onclick = this._removeAllPages.bind(this);        
         this.download_button.onclick = this._downloadPDF.bind(this);
         this.page_width_field.onchange = this._changePaperSize.bind(this);
         this.page_height_field.onchange = this._changePaperSize.bind(this);
@@ -202,6 +204,12 @@ L.Control.PrintPages = L.Control.extend({
         for (var i=0; i<this.sheets.length; i++){
             this.sheets[i].setMapScale(scale);
         }
+    },
+    
+    _removeAllPages: function() {
+        while (this.sheets.length) 
+            this.sheets[0].remove();
+        
     },
     
     _onSheetRemove: function(e) {

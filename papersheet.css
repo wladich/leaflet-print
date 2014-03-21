@@ -81,6 +81,14 @@ a.print-page-dialog-download-link{
 a.print-page-dialog-download-link:hover{
     background-color: #f4f4f4;
 }
+a.print-page-dialog-remove-all-pages {
+    font: bold 18px 'Lucida Console',Monaco,monospace;
+    text-indent: 1px;
+    color: #333;
+    text-align: center;
+    float: right;
+    }
+    
 .progress-unknown {
     width: 22px;
     margin-left: auto;
@@ -135,8 +143,6 @@ a.print-page-dialog-download-link:hover{
     border-radius: 4px 4px 4px 4px;   
     display: block;
     border: 1px  solid #ccc;
-    float: left;
-    margin-right: 4pt;
     background-position: 50% 50%;
     background-repeat: no-repeat;
     cursor: pointer;    
@@ -148,9 +154,12 @@ a.print-page-dialog-download-link:hover{
 
 a.print-page-add-landscape {
     background-image: url('images/add-page-horiz.png');
+    float: left;
+    margin-left : 4pt;    
 }
 
 a.print-page-add-portrait {
     background-image: url('images/add-page-vert.png');
+    float: left;
 }
 
