@@ -31,7 +31,10 @@ makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
             return layer_copy.getTilesInfo().then(
                 function(tiles){
                     disposeMap(temp_map);
-                    var mosaic = new Mosaic(src_pixel_size.x, src_pixel_size.y, progress);
+                    var tile_progress = function(n){
+                        progress(n / tiles.length);
+                    }
+                    var mosaic = new Mosaic(src_pixel_size.x, src_pixel_size.y, tile_progress);
                     for (var i=0; i < tiles.length; i++) {
                         var tile = tiles[i];
                         var url = tile[0];                
@@ -42,7 +45,6 @@ makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
                             if (layer.options.noCors) {
                                 url = 'http://proxy.wladich.tk/' + url.replace(/^https?:\/\//, '');
                             };
-                            progress(0, 1);
                             mosaic.putImage(url, x, y, tile_size);
                         }
                     };
@@ -102,6 +104,7 @@ makeMapRectangleImage = function(map, ll_bounds, zooms, strict_zoom, target_widt
         var layer = map._layers[layer_ids[i]];
         if (layerSupportsMosaicing(layer)){
             var zoom = layer.options.scaleDependent ? zooms[1] : zooms[0];
+            progress(null, 1);
             var layer_promise;
             if (strict_zoom)
                 layer_promise = Promise.from([zoom]);
