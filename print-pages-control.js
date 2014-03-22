@@ -361,8 +361,8 @@ L.Control.PrintPages = L.Control.extend({
     },
     
     _unserializeState: function(values) {
-        if (!values)
-            return false
+        if (!values )
+            return false;
         var width = parseInt(values.shift()),
             height = parseInt(values.shift()),
             margin0 = parseInt(values.shift()),
