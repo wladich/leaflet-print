@@ -382,9 +382,11 @@ L.Mixin.ContextMenu = {
 
 		if (this._map.contextmenu) {
 			pt = this._map.mouseEventToContainerPoint(e.originalEvent);
-
-			for (i = 0, l = this.options.contextmenuItems.length; i < l; i++) {
-				itemOptions = this.options.contextmenuItems[i];
+	        var contextmenuItems =  this.options.contextmenuItems;
+	        if (typeof contextmenuItems == 'function') 
+	            contextmenuItems = contextmenuItems();
+			for (i = 0, l = contextmenuItems.length; i < l; i++) {
+				itemOptions = contextmenuItems[i];
 				this._items.push(this._map.contextmenu.insertItem(itemOptions, itemOptions.index));
 			}
 
