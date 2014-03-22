@@ -59,9 +59,7 @@
                 hash.push(key + '=' + values);
             }
             hash = '#' + hash.join('&');
-//            this._updating = true;
             location.replace(hash);
-//            this._updating = false;            
         },
         
         getState: function(key){
@@ -69,11 +67,6 @@
         },
         
         onHashChanged: function() {
-//            console.log(this._updating);
-//            if (this._updating) {
-//                this._updating = false;
-//                return;
-//            }
             var state = this._parseHash();
             var changed_keys = {};
             for (var key in state) 
@@ -85,8 +78,12 @@
             for (var i=0; i < this._listeners.length; i++) {
                 var key = this._listeners[i][0],
                     callback = this._listeners[i][1];
-                if (key in changed_keys)
-                    callback(state[key]);
+                if (key in changed_keys) 
+                    setTimeout((function(){
+                        var key_ = key,
+                            callback_ = callback;
+                        return function(){callback_(state[key_])}
+                        })(), 0);
             }
             this._prevState = state;
         }
