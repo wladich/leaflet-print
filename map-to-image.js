@@ -115,8 +115,11 @@ makeMapRectangleImage = function(map, ll_bounds, zooms, strict_zoom, target_widt
                     var layer_ = layer;
                     return function(displayed_zooms){
                         var layer_levels = [];
+                        var layer_level_progress = function(n){
+                            progress(n / displayed_zooms.length);
+                        };
                         for (var j=0; j < displayed_zooms.length; j++){
-                            layer_levels.push(makeLayerRectangleImage(layer_, ll_bounds, displayed_zooms[j], progress));
+                            layer_levels.push(makeLayerRectangleImage(layer_, ll_bounds, displayed_zooms[j], layer_level_progress));
                         }
                         return Promise.all(layer_levels);
                     }
