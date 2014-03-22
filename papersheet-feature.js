@@ -10,6 +10,7 @@ L.PaperSheet = L.FeatureGroup.extend({
             contextmenuItems: this._getContextmenuItems.bind(this)
         });
         this._marker.on('drag', this._updatePositionFromMarker, this);
+        this._marker.on('dragend', function(){this.fire('dragend')}, this);        
         this._marker.on('click', this.rotate, this);
         L.FeatureGroup.prototype.initialize.call(this, [this._rect, this._marker]);
     },
@@ -42,6 +43,7 @@ L.PaperSheet = L.FeatureGroup.extend({
     rotate: function(){
         this.options.rotated = !this.options.rotated;
         this._updatePositionFromMarker();
+        this.fire('rotate');
     },
     
     setPaperSize: function(width, height){

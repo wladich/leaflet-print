@@ -1,5 +1,7 @@
 L.Control.PrintPages = L.Control.extend({
-    includes: L.Mixin.Events,
+    includes: [L.Mixin.Events, L.Mixin.HashState],
+    
+    hashStateChangeEvents: ['change'],
     
     initialize: function() {
         this.sheets = [];
@@ -129,6 +131,8 @@ L.Control.PrintPages = L.Control.extend({
         this.margin_fields[1].onchange = this._changePaperSize.bind(this);
         this.margin_fields[2].onchange = this._changePaperSize.bind(this);
         this.margin_fields[3].onchange = this._changePaperSize.bind(this);
+        this.resolution_field.onchange = function(){this.fire('change')}.bind(this);
+        this.src_zoom_field.onchange = function(){this.fire('change')}.bind(this);        
     },
     
     addTo: function(map){
@@ -184,43 +188,57 @@ L.Control.PrintPages = L.Control.extend({
         var sheet = this.sheets.splice(old_n, 1)[0];
         this.sheets.splice(new_n, 0, sheet);
         this._updateLabels();
+        this.fire('change');        
     },
     
-    _addSheetPortrait: function() {
+    _addSheet: function(latlng, rotated) {
         var paper_size = this.getPaperSize();
-        var sheet = new L.PaperSheet(this._map.getCenter(), 
+        var sheet = new L.PaperSheet(latlng, 
                                      {label: this.sheets.length + 1, 
                                       map_scale_denominator: this.getMapScale(),
-                                      paper_width: paper_size[0], paper_height: paper_size[1]},
+                                      paper_width: paper_size[0], paper_height: paper_size[1],
+                                      rotated: rotated},
                                       this);
         sheet.addTo(this._map);
         this.sheets.push(sheet);
-        sheet.on('remove', this._onSheetRemove, this)
+        sheet.on('remove', this._onSheetRemove, this);
+        sheet.on('rotate', this._onSheetChanged, this);
+        sheet.on('dragend', this._onSheetChanged, this);
+        this.fire('change');
         return sheet;
     },
+    
+    _addSheetPortrait: function() {
+        return this._addSheet(this._map.getCenter(), false);
+    },
 
-    _addSheetLandscape: function() {
-        this._addSheetPortrait().rotate();
+    _addSheetLandscape: function(latlng) {
+        return this._addSheet(this._map.getCenter(), true);
     },
     
     _changePaperSize: function() {
         var size = this.getPaperSize();
         for (var i=0; i<this.sheets.length; i++){
             this.sheets[i].setPaperSize(size[0], size[1]);
-        }
+        };
+        this.fire('change');
     },
 
     _changeMapScale: function() {
         var scale = this.getMapScale();
         for (var i=0; i<this.sheets.length; i++){
             this.sheets[i].setMapScale(scale);
-        }
+        };
+        this.fire('change');
     },
     
     _removeAllPages: function() {
         while (this.sheets.length) 
             this.sheets[0].remove();
-        
+    },
+    
+    _onSheetChanged: function() {
+        this.fire('change');
     },
     
     _onSheetRemove: function(e) {
@@ -228,6 +246,7 @@ L.Control.PrintPages = L.Control.extend({
         this.sheets.splice(this.sheets.indexOf(e.target), 1);
         sheet.removeFrom();
         this._updateLabels();
+        this.fire('change');
     },
 
     _updateLabels: function(){
@@ -318,7 +337,76 @@ L.Control.PrintPages = L.Control.extend({
             this_.stopProgress();
             });
         
-    }
+    },
     
+    _serializeState: function(){
+        state = [];
+        state.push(this.page_width_field.value);
+        state.push(this.page_height_field.value);
+        state.push(this.margin_fields[0].value);
+        state.push(this.margin_fields[1].value);        
+        state.push(this.margin_fields[2].value);        
+        state.push(this.margin_fields[3].value);        
+        state.push(this.getResolution());
+        state.push(this.getMapScale());
+        var zoom = this.getSourceZoom();
+        state.push(zoom == 'auto' ? -1 : zoom);
+        for (var i=0; i < this.sheets.length; i++){
+            var ll = this.sheets[i].getCenter();
+            state.push(ll.lat.toFixed(5));
+            state.push(ll.lng.toFixed(5));
+            state.push(this.sheets[i].isRotated() ? 1 : 0);
+        }
+        return state;
+    },
+    
+    _unserializeState: function(values) {
+        if (!values)
+            return false
+        var width = parseInt(values.shift()),
+            height = parseInt(values.shift()),
+            margin0 = parseInt(values.shift()),
+            margin1 = parseInt(values.shift()),
+            margin2 = parseInt(values.shift()),
+            margin3 = parseInt(values.shift()),
+            resolution = parseInt(values.shift()),
+            scale = parseInt(values.shift()),
+            zoom = parseInt(values.shift()),
+            pages = [];
+        while (values.length > 2) {
+            var lat = parseFloat(values.shift()),
+                lng = parseFloat(values.shift()),
+                rotated = parseInt(values.shift());
+            pages.push([lat, lng, rotated]);
+        }
+            
+        if (isNaN(width) || isNaN(height) || 
+            isNaN(margin0) || isNaN(margin1) || isNaN(margin2) || isNaN(margin3) ||
+            isNaN(resolution), isNaN(scale), isNaN(zoom))
+                return false;
+        this._updating_state = true;
+        this._removeAllPages();
+        this.page_width_field.value = width;
+        this.page_height_field.value = height;
+        this.margin_fields[0].value = margin0;
+        this.margin_fields[1].value = margin1;
+        this.margin_fields[2].value = margin2;
+        this.margin_fields[3].value = margin3;
+        this.resolution_field.value = resolution;
+        this.map_scale_field.value = scale;
+        this.src_zoom_field.value = zoom < 0 ? 'auto' : zoom;
+        for (var i=0; i< pages.length; i++) {
+            var lat = pages[i][0],
+                lng = pages[i][1],
+                rotated = pages[i][2];
+            if (isNaN(lat) || isNaN(lng) || isNaN(rotated)){
+                this._updating_state = false;
+                return false;
+            }
+            this._addSheet([lat, lng], rotated);
+        }
+        this._updating_state = false;
+        return true;
+    }
 });
 
