@@ -176,12 +176,23 @@ L.Control.PrintPages = L.Control.extend({
         return this.src_zoom_field.value;
     },
     
+    getPagesNum: function(){
+        return this.sheets.length;    
+    },
+    
+    changePageIndex: function(old_n, new_n) {
+        var sheet = this.sheets.splice(old_n, 1)[0];
+        this.sheets.splice(new_n, 0, sheet);
+        this._updateLabels();
+    },
+    
     _addSheetPortrait: function() {
         var paper_size = this.getPaperSize();
         var sheet = new L.PaperSheet(this._map.getCenter(), 
                                      {label: this.sheets.length + 1, 
                                       map_scale_denominator: this.getMapScale(),
-                                      paper_width: paper_size[0], paper_height: paper_size[1]});
+                                      paper_width: paper_size[0], paper_height: paper_size[1]},
+                                      this);
         sheet.addTo(this._map);
         this.sheets.push(sheet);
         sheet.on('remove', this._onSheetRemove, this)

@@ -1,21 +1,16 @@
 L.PaperSheet = L.FeatureGroup.extend({
-    initialize: function(latlng, options){
+    initialize: function(latlng, options, parent_control){
         this.options = options;
+        this.parent = parent_control;
         this._rect = L.rectangle([[0,0], [1,1]], {color: "#ff7800", weight: 1});
         var icon = L.divIcon({className: "paper-sheet-label", html: options.label});
+        this._label_text = options.label;
         this._marker = L.marker(latlng, {icon: icon,  draggable: true,
             contextmenu: true,
-            contextmenuItems: [
-            {
-                text: 'Rotate',
-                callback: this.rotate.bind(this)
-            }, {separator: 1, text: 'Hi'}, {
-                text: 'Delete',
-                callback: this.remove.bind(this)
-            }]
+            contextmenuItems: this._getContextmenuItems.bind(this)
         });
         this._marker.on('drag', this._updatePositionFromMarker, this);
-        this._marker.on('click', this.rotate, this)
+        this._marker.on('click', this.rotate, this);
         L.FeatureGroup.prototype.initialize.call(this, [this._rect, this._marker]);
     },
 
@@ -33,12 +28,14 @@ L.PaperSheet = L.FeatureGroup.extend({
     }, 
     
     removeFrom: function() {
+        this._map.contextmenu.hide();
         this._map.off('zoomend', this._updatePositionFromMarker);
         this._map.removeLayer(this);
         this._map = undefined;
     },
     
     setLabel: function(label){
+        this._label_text = label;
         this._marker._icon.innerHTML = label;
     },
     
@@ -99,6 +96,37 @@ L.PaperSheet = L.FeatureGroup.extend({
     
     isRotated: function(){
         return !!this.options.rotated;
+    },
+    
+    _getContextmenuItems: function(){
+        items = [
+            {
+                text: 'Rotate',
+                callback: this.rotate.bind(this)
+            }, 
+            '-', 
+            {
+                text: 'Delete',
+                callback: this.remove.bind(this)
+            }];
+        var pages_number = this.parent.getPagesNum();
+        if (pages_number > 1) {
+            items.push({'separator': 1, 'text': 'Change order'});
+            for (var i=1; i <= pages_number; i++)
+                if (i != this._label_text)
+                    items.push({
+                        text: i, 
+                        context: this,
+                        callback: function(){
+                            var i_=i;
+                            return function(){
+                                this.parent.changePageIndex(this._label_text-1, i_-1);
+                            }
+                        }()
+                    });
+                
+        }
+        return items;
     }
 });
 
