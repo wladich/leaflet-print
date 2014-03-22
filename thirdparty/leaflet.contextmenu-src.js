@@ -157,7 +157,7 @@ L.Map.ContextMenu = L.Handler.extend({
 
 	_createItem: function (container, options, index) {
 		if (options.separator || options === '-') {
-			return this._createSeparator(container, index);
+			return this._createSeparator(container, index, options);
 		}
 
 		var itemCls = L.Map.ContextMenu.BASE_CLS + '-item', 
@@ -219,9 +219,11 @@ L.Map.ContextMenu = L.Handler.extend({
 		return null;
 	},
 
-	_createSeparator: function (container, index) {
+	_createSeparator: function (container, index, options) {
 		var el = this._insertElementAt('div', L.Map.ContextMenu.BASE_CLS + '-separator', container, index);
-		
+
+		if (options.text)
+		    el.innerHTML = '<span>' + options.text + '</span>';
 		return {
 			id: L.Util.stamp(el),
 			el: el

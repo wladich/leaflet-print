@@ -47,7 +47,16 @@
     border: 0;
 }
 
+.leaflet-contextmenu-separator span {
+    background-color: white;
+    padding: 0 0.2em;
+    color: #888;
+    margin: 0 1em;
+}
 .leaflet-contextmenu-separator {
     border-bottom: 1px solid #ccc;
+    text-align: center;
+    width: 100%;
+    line-height: 1px;
     margin: 5px 0;
 }
