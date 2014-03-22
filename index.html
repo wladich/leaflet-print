@@ -9,12 +9,12 @@
         <link rel="stylesheet" href="leaflet/leaflet.css" />
         <link rel="stylesheet" href="papersheet.css" />
         <script src="leaflet/leaflet.js"></script>
-        <script src="leaflet-plugins/leaflet-hash.js"></script>
-
         <script src="thirdparty/promise-3.2.0.js"></script>
         <script src="thirdparty/Blob.js"></script>        
         <script src="thirdparty/FileSaver.js"></script>                
 
+        <script src="hash.state/hash.state.js"></script>
+        <script src="hash.state/leaflet.hash.state.js"></script>
         <script src="utils.js"></script>
         <script src="pdf.js"></script>
         <script src="thirdparty/Yandex.js"></script>
@@ -67,12 +67,15 @@
             
             function setUpMap(){
                  var map = new L.Map('map', {fadeAnimation: false, contextmenu: true});
-                 map.setView([55, 36], 9);
+                 map.enableHashState('m', [9, 55, 36])
 
-                 L.control.layers(baseMaps, overlays, {collapsed: false}).addTo(map);
-                 map.addLayer(baseMaps['OpenStreetMap']);
-                 var hash = new L.Hash(map);
-                 (new L.Control.PrintPages()).addTo(map);
+                 var layers = L.control.layers(baseMaps, overlays, {collapsed: false});
+                 layers.addTo(map);
+                 layers.enableHashState('l', [baseMaps['OpenStreetMap']._leaflet_id]);
+                 
+                 var print_pages = new L.Control.PrintPages();
+                 print_pages.addTo(map);
+                 print_pages.enableHashState('pp', [210,297,3,3,3,3,300,50000,-1]);
             }
             window.onload = setUpMap;
         </script>        
