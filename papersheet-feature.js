@@ -9,6 +9,10 @@ L.PaperSheet = L.FeatureGroup.extend({
             contextmenu: true,
             contextmenuItems: this._getContextmenuItems.bind(this)
         });
+        setTimeout(function(){
+            this._marker._icon.title = 'Left click to rotate, right click for menu';
+        }.bind(this), 0);
+
         this._marker.on('drag', this._updatePositionFromMarker, this);
         this._marker.on('dragend', function(){this.fire('dragend')}, this);        
         this._marker.on('click', this.rotate, this);
