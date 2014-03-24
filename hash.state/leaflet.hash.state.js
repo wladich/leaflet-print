@@ -1,3 +1,4 @@
+"use strict";
 L.Mixin.HashState = {
     enableHashState: function(key, defaults) {
         this._hash_state_key = key;
@@ -35,7 +36,7 @@ L.Map.include({
         var center = this.getCenter();
         var zoom = this.getZoom();
         var precision = Math.max(0, Math.ceil(Math.log(zoom) / Math.LN2));
-        state = [
+        var state = [
             zoom,
             center.lat.toFixed(precision),
             center.lng.toFixed(precision),
@@ -65,7 +66,7 @@ L.Control.Layers.include({
     _eventsSource: '_map',
     
     _serializeState: function(e){
-        state = [];
+        var state = [];
         for (var layer_id in this._map._layers){
             var layer = this._map._layers[layer_id];
             var isControlled = layer_id in this._layers;

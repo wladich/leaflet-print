@@ -1,3 +1,4 @@
+"use strict";
 (function(window) {
 
     function arrayItemsEqual(l1, l2) {

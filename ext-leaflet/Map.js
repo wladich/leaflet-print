@@ -1,3 +1,4 @@
+"use strict";
 L.Map.include({
     latLngBoundsToSizeInPixels: function(bounds, zoom) {
         var p1 = this.project(bounds.getSouthWest(), zoom);

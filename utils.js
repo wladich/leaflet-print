@@ -1,3 +1,4 @@
+"use strict";
 function get(url){
     return new Promise(function(resolve){
         var xhr = new XMLHttpRequest();
@@ -73,7 +74,7 @@ function downloadFile(fileName, mimeType, data){
     for (var i = 0; i < length; i++) {
         array[i] = data.charCodeAt(i);
     };
-    blob = new Blob([array], {type: mimeType});
+    var blob = new Blob([array], {type: mimeType});
     saveAs(blob, fileName);
 }
 

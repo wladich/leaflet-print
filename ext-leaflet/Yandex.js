@@ -1,3 +1,4 @@
+"use strict";
 ymaps.ready(function(){
     ymaps.layer.tileContainer.CanvasContainer.prototype = ymaps.layer.tileContainer.DomContainer.prototype;
 });
@@ -20,7 +21,7 @@ L.Yandex.include({
             var tiles_in_page = 0;
             var expected_tiles;
             for (var i=0; i<children.length; i++){
-                child = children[i];
+                var child = children[i];
                 if (child.style.getPropertyValue('width') == '256px' && child.style.getPropertyValue('height') == '256px'){
                     var img_rect = child.getBoundingClientRect();
                     var img_rel_left = img_rect.left - map_rect.left;

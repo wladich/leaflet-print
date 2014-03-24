@@ -1,3 +1,4 @@
+"use strict";
 L.Control.PrintPages = L.Control.extend({
     includes: [L.Mixin.Events, L.Mixin.HashState],
     
@@ -283,7 +284,7 @@ L.Control.PrintPages = L.Control.extend({
         if (this.sheets.length > 0) {
             var reference_lat = 1e20;
             for (var i=0; i < this.sheets.length; i++) {
-                sheet = this.sheets[i];
+                var sheet = this.sheets[i];
                 var sheet_lat = Math.abs(sheet.getCenter().lat);
                 if (Math.abs(sheet_lat < reference_lat)) {
                     reference_lat = sheet_lat;
@@ -340,7 +341,7 @@ L.Control.PrintPages = L.Control.extend({
     },
     
     _serializeState: function(){
-        state = [];
+        var state = [];
         state.push(this.page_width_field.value);
         state.push(this.page_height_field.value);
         state.push(this.margin_fields[0].value);

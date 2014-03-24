@@ -1,3 +1,4 @@
+"use strict";
 L.PaperSheet = L.FeatureGroup.extend({
     initialize: function(latlng, options, parent_control){
         this.options = options;
@@ -105,7 +106,7 @@ L.PaperSheet = L.FeatureGroup.extend({
     },
     
     _getContextmenuItems: function(){
-        items = [
+        var items = [
             {
                 text: 'Rotate',
                 callback: this.rotate.bind(this)

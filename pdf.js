@@ -1,5 +1,6 @@
+"use strict";
 function buildPDF(images, resolution){
-    pdf = [];
+    var pdf = [];
     pdf.push('%PDF-1.3\n');
     pdf.push('1 0 obj\n\
 <<\n\

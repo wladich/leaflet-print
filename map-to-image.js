@@ -1,4 +1,5 @@
-getTempMap = function(width, height, center, zoom) {
+"use strict";
+function getTempMap(width, height, center, zoom) {
     var container = L.DomUtil.create('div', 'offscreen-map', document.body);
     container.style.width = width + 'px';
     container.style.height = height + 'px'; 
@@ -10,17 +11,17 @@ getTempMap = function(width, height, center, zoom) {
         });
 }
 
-disposeMap = function(map){
+function disposeMap(map){
     var container = map.getContainer();
     container.parentNode.removeChild(container);
 }
 
-layerSupportsMosaicing = function(layer) {
+function layerSupportsMosaicing(layer) {
     return layer.getTilesInfo !== undefined;
 }
 
 
-makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
+function makeLayerRectangleImage(layer, ll_bounds, zoom, progress){
     var src_pixel_size = layer._map.latLngBoundsToSizeInPixels(ll_bounds, zoom);
     var center = ll_bounds.getCenter();
     console.log('Using zoom ', zoom);
@@ -55,7 +56,7 @@ makeLayerRectangleImage = function(layer, ll_bounds, zoom, progress){
     )
 };
 
-combineImages = function(images, width, height) {
+function combineImages(images, width, height) {
     var canvas = L.DomUtil.create('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -69,14 +70,14 @@ combineImages = function(images, width, height) {
     return canvas
 }
 
-canvasToData = function(canvas){
+function canvasToData(canvas){
     var data = canvas.toDataURL("image/jpeg");
     data = data.substring(data.indexOf(',') + 1);
     data = atob(data);
     return data;
 };
 
-calcLayerDisplayedZooms = function(layer, ll_bounds, requested_zoom){
+function calcLayerDisplayedZooms(layer, ll_bounds, requested_zoom){
     var probes = [
          ll_bounds.getCenter(), 
          ll_bounds.getNorthEast(), 
@@ -97,7 +98,7 @@ calcLayerDisplayedZooms = function(layer, ll_bounds, requested_zoom){
         })
 }
 
-makeMapRectangleImage = function(map, ll_bounds, zooms, strict_zoom, target_width, target_height, progress){
+function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width, target_height, progress){
     var layers = [];
     var layer_ids = Object.keys(map._layers).sort();
     for (var i=0; i<layer_ids.length; i++){

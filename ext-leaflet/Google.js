@@ -1,3 +1,4 @@
+"use strict";
 L.Google.include({
 
     clone: function(){

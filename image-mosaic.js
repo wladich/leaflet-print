@@ -1,4 +1,5 @@
-Mosaic = L.Class.extend({
+"use strict";
+var Mosaic = L.Class.extend({
     initialize: function(width, height, progress) {
         this.canvas = L.DomUtil.create('canvas');
         this.canvas.width = width;
