@@ -163,3 +163,20 @@ a.print-page-add-portrait {
     float: left;
 }
 
+
+a.print-page-open-file {
+    background-image: url('images/folder_open.png');
+    float: left;
+}
+
+a.print-page-download-file {
+    background-image: url('images/arrow_bottom.png');
+    float: right;
+}
+
+input.print-page-url-field {
+    float: right;
+    margin-left: 2em;
+    margin-right: 4pt;
+    line-height: 26px;
+}
