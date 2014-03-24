@@ -1,13 +1,14 @@
 "use strict";
 L.Control.PrintPages = L.Control.extend({
     includes: [L.Mixin.Events, L.Mixin.HashState],
+    options: {position: 'bottomleft'},
     
     hashStateChangeEvents: ['change'],
     
-    initialize: function() {
+    onAdd: function(map) {
+        this._map = map;
         this.sheets = [];
-        this._container =  L.DomUtil.create('div', 'leaflet-bottom leaflet-left');
-        var dialogContainer = L.DomUtil.create('div', 'leaflet-control leaflet-printpages-dialog', this._container);
+        var dialogContainer = L.DomUtil.create('div', 'leaflet-control leaflet-printpages-dialog');
         dialogContainer.innerHTML = '\
         <table class="form">\
             <tr>\
@@ -133,21 +134,11 @@ L.Control.PrintPages = L.Control.extend({
         this.margin_fields[2].onchange = this._changePaperSize.bind(this);
         this.margin_fields[3].onchange = this._changePaperSize.bind(this);
         this.resolution_field.onchange = function(){this.fire('change')}.bind(this);
-        this.src_zoom_field.onchange = function(){this.fire('change')}.bind(this);        
-    },
-    
-    addTo: function(map){
-        map._controlContainer.appendChild(this._container);
-        this._map = map;
-        var stop = L.DomEvent.stopPropagation;
-         L.DomEvent
-            .on(this._container, 'click', stop)
-            .on(this._container, 'mousedown', stop)
-            .on(this._container, 'touchstart', stop)
-            .on(this._container, 'dblclick', stop)
-            .on(this._container, 'mousewheel', stop)
-            .on(this._container, 'MozMousePixelScroll', stop);
-        return this;
+        this.src_zoom_field.onchange = function(){this.fire('change')}.bind(this);
+
+        L.DomEvent.disableClickPropagation(dialogContainer);
+        
+        return dialogContainer;
     },
     
     getPaperSize: function() {
