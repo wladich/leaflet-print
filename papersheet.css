@@ -136,7 +136,7 @@ a.print-page-dialog-remove-all-pages {
     background-color: #ccc;
     height: 10px;
 }
-.print-page-bar a {
+a.print-page-button {
     width: 26px;
     height: 26px;
     line-height: 26px;
@@ -148,7 +148,7 @@ a.print-page-dialog-remove-all-pages {
     cursor: pointer;    
 }
 
-.print-page-bar a:hover {
+a.print-page-button:hover {
     background-color: #f4f4f4;
 }
 

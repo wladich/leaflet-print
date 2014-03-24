@@ -13,11 +13,9 @@ L.Control.PrintPages = L.Control.extend({
         <table class="form">\
             <tr>\
                 <td colspan="2">\
-                    <div class="print-page-bar">\
-                        <a title="Add page in portrait orientation" class="print-page-add-portrait"></a>\
-                        <a title="Add page in landscape orientation" class="print-page-add-landscape"></a>\
-                        <a title="Remove all pages" class="print-page-dialog-remove-all-pages">X</a>\
-                    </div>\
+                        <a title="Add page in portrait orientation" class="print-page-button print-page-add-portrait"></a>\
+                        <a title="Add page in landscape orientation" class="print-page-button print-page-add-landscape"></a>\
+                        <a title="Remove all pages" class="print-page-button print-page-dialog-remove-all-pages">X</a>\
                 </td>\
             </tr>\
             <tr>\
