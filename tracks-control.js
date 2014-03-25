@@ -1,18 +1,5 @@
 "use strict";
 
-L.LocalFileLoader = L.Class.extend({
-    includes: L.Mixin.Events,
-    
-    load: function (file) {
-         var reader = new FileReader();
-         reader.onload = function (e) {
-             this.fire('load', {name: file.name, data: e.target.result, isLocal: true});
-         }.bind(this);
-         reader.readAsText(file);
-         return reader;    
-    }
-});
-
 L.Util.parseGpx = function(txt){
     var getSegmentPoints = function(xml){
         var points_elements = xml.getElementsByTagName('trkpt');
@@ -80,6 +67,7 @@ L.Control.PrintPages.Tracks = L.Control.extend({
 
     onAdd: function(map){
         this._map = map;
+        this._tracks = [];
         var container = L.DomUtil.create('div', 'leaflet-control leaflet-printpages-dialog');
         container.innerHTML = '\
             <table class="form" class="print-page-tracks-items">\
@@ -111,91 +99,84 @@ L.Control.PrintPages.Tracks = L.Control.extend({
     },
     
     onFileSelected: function() {
-        this.addTrackItemFromFile(this.fileInput.files[0]);
+        this.addTrackFromFile(this.fileInput.files[0]);
         this.fileInput.value = '';
         },
     
     onDownloadButtonPressed: function() {
         var url = this.url_field.value.trim();
         if (url) {
-            this.addTrackItemFromUrl(url);
-        }
+            this.addTrackFromUrl(url);
+        };
+        this.url_field.value = '';
     },
 
-    createPolylinesFromFile: function(filename, txt) {
-        var ext = filename.split('.').pop().toLowerCase();
+    _parseTrackFile: function(file) {
+        var ext = file.name.split('.').pop().toLowerCase();
         if (ext in this.parsers) {
             var parser = this.parsers[ext];
             try {
-                var track_segments = parser(txt).tracks;
+                var track = parser(file.data).tracks;
             } catch (e) {
                 alert('Could not load file: ' + e);
-                return false;
+                return null;
             }
         } else {
             alert('Could not load file, unknown extension');
-            return false;
+            return null;
         }
+        file.geodata = track;
+        return file;
+    },
+
+    _createPolyline: function(segments, color){
         var track_lines = [];
-        for (var i=0; i<track_segments.length; i++) {
-            var segment = track_segments[i]
+        for (var i=0; i < segments.length; i++) {
+            var segment = segments[i]
                 .map(function(p){return {x: p.lng, y: p.lat}});
             var segment_filtered = L.LineUtil.simplify(segment, 0.0002)
                 .map(function(p){return {lat: p.y, lng: p.x}});
-            track_lines.push(L.polyline(track_segments[i], {color: '#f00'}));
+            track_lines.push(L.polyline(segments[i], {color: '#f00'}));
             track_lines.push(L.polyline(segment_filtered));
-            console.log(track_segments[i].length);
+            console.log(segments[i].length);
             console.log(segment_filtered.length);
         }
         var trackfile_layer = L.featureGroup(track_lines);
         return trackfile_layer.addTo(this._map);
     },
 
-    // options: url -- url or filename, retrivable -- if can be downloaded
-    _createPolyline: function(segment, color){
-        var track_lines = [];
-        for (var i=0; isegments.length; i++) {
-            var segment = track_segments[i]
-                .map(function(p){return {x: p.lng, y: p.lat}});
-            var segment_filtered = L.LineUtil.simplify(segment, 0.0002)
-                .map(function(p){return {lat: p.y, lng: p.x}});
-            track_lines.push(L.polyline(track_segments[i], {color: '#f00'}));
-            track_lines.push(L.polyline(segment_filtered));
-            console.log(track_segments[i].length);
-            console.log(segment_filtered.length);
-        }
-        var trackfile_layer = L.featureGroup(track_lines);
-        return trackfile_layer.addTo(this._map);
+    // options: name -- url or filename, retrivable -- if can be downloaded
+    _addTrack: function(segments, options) {
+        var polyline = this._createPolyline(segments);
+        
     },
 
-    _addTrackItem: function(segments, options) {
-        var polyline = this._createPolyline(segments)
-    },
-
-    addTrackItemFromUrl: function(url) {
+    addTrackFromUrl: function(url) {
         // TODO: first try direct request, fallback to proxy if CORS not available
         // FIXME: error if https and using proxy and with other schemas
         url = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
+        var _this = this;
         get(url)
             .then(function(xhr) {
-                this.onFileLoaded({
-                    data: xhr.responseText,
-                    name: url.split('/').pop()
-                })
-            }.bind(this))
+                return _this._parseTrackFile({data: xhr.responseText, name: url.split('/').pop()})
+            }).done(function(data)
+            {
+                _this._addTrack(data.geodata, {name: data.name, retrivable: true});
+            })
     },
 
     // file -- js file object as retrievd from file input`s property "files"'
-    addTrackItemFromFile: function(file) {
-        var loader = new L.LocalFileLoader();
-        loader.on('load', this.onFileLoaded, this);
-        loader.load(file);
-        this.fileInput.value = '';
+    addTrackFromFile: function(file) {
+        readFile(file)
+            .then(this._parseTrackFile.bind(this))
+            .done(function(data){
+                this._addTrack(data.geodata, {name: data.name, retrivable: false});
+            }.bind(this));
     },
 
-    addTrackItemFromEncodedString: function(s) {},
+    addTrackFromEncodedString: function(s) {},
 
-    onFileLoaded: function(file){
-        console.log(this.createPolylinesFromFile(file.name, file.data));
-    }
+//    onFileLoaded: function(file){
+//        console.log(this.createPolylinesFromFile(file.name, file.data));
+//    }
 });
