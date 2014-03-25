@@ -13,6 +13,17 @@ function get(url, responseType){
         xhr.send();
     });
 }
+
+function readFile(file) {
+     return new Promise(function(resolve){
+         var reader = new FileReader();
+         reader.onload = function (e) {
+            resolve({name: file.name, data: e.target.result, isLocal: true});
+         };
+         reader.readAsText(file);
+     });
+}
+
 function checkImage(s){
     return  (s.substring(0, 4) == '\x89PNG' && s.substring(s.length-8) == 'IEND\xae\x42\x60\x82') || 
             (s.substring(0, 2) == '\xff\xd8' && s.substring(s.length-2) == '\xff\xd9')
