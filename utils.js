@@ -1,10 +1,10 @@
 "use strict";
-function get(url){
+function get(url, responseType){
     return new Promise(function(resolve){
         var xhr = new XMLHttpRequest();
         xhr.timeout = 30000;
         xhr.open('GET', url);
-        xhr.responseType = 'arraybuffer';
+        xhr.responseType = responseType;
         xhr.onreadystatechange = function(e){
             if (this.readyState == 4){
                 resolve(this);
@@ -29,7 +29,7 @@ function later(time, f, ctx, args) {
 function loadImage(url){
     // TODO: handle errors other then 404 (500, 403)
     // TODO: Limit retries number
-    return get(url).then(function(req){
+    return get(url, 'arraybuffer').then(function(req){
         if (req.status == 200) {
             if (req.response.length === 0) {
                 console.log('Retrying', url);
