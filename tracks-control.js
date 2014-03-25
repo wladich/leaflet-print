@@ -164,6 +164,7 @@ L.Control.PrintPages.Tracks = L.Control.extend({
         var checkbox = el.querySelector('input');
         var delete_button = el.querySelector('a.track-delete-button');
         var color_legend =  el.querySelector('.track-color-selector');
+        var track_name = el.querySelector('.track-name');
         
         color_legend.style.backgroundColor = track_obj.color;
         L.DomEvent.on(checkbox, 'click', function(e){
@@ -172,8 +173,14 @@ L.Control.PrintPages.Tracks = L.Control.extend({
         L.DomEvent.on(delete_button, 'click', function(){
             this.removeTrack(track_obj);
         }, this);
-
+        L.DomEvent.on(track_name, 'click', function(){
+            this.zoomToTrack(track_obj);
+        }, this);
         return el;
+    },
+
+    zoomToTrack: function(track_obj) {
+        this._map.fitBounds(track_obj.polyline.getBounds());
     },
 
     setTrackVisibility: function(track_obj, visible) {
