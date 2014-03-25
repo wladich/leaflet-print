@@ -180,3 +180,19 @@ input.print-page-url-field {
     margin-right: 4pt;
     line-height: 26px;
 }
+
+a.track-delete-button {
+    font: bold 12px 'Lucida Console',Monaco,monospace;
+    padding-left: 0.3em;
+    color: #333;
+    text-align: center;
+    float: right;
+    cursor: pointer;
+}
+
+.track-color-selector {
+    width: 1em;
+    height: 2pt;
+    margin-left: 0.2em;
+    margin-right: 0.2em;
+}
