@@ -104,32 +104,21 @@ L.Control.PrintPages.Tracks = L.Control.extend({
 
         var download_button = container.querySelector('.print-page-download-file');
         this.url_field = container.querySelector('input.print-page-url-field');
-        L.DomEvent.on(download_button, 'click', this.onDownloadPressed, this);
+        L.DomEvent.on(download_button, 'click', this.onDownloadButtonPressed, this);
         
         this.elements_container = container.querySelector('table.print-page-tracks-items')
         return container;
     },
     
     onFileSelected: function() {
-        var loader = new L.LocalFileLoader();
-        loader.on('load', this.onFileLoaded, this);
-        loader.load(this.fileInput.files[0]);
+        this.addTrackItemFromFile(this.fileInput.files[0]);
         this.fileInput.value = '';
         },
     
-    onDownloadPressed: function() {
+    onDownloadButtonPressed: function() {
         var url = this.url_field.value.trim();
         if (url) {
-            // TODO: first try direct request, fallback to proxy if CORS not available
-            // FIXME: error if https and using proxy and with other schemas
-            url = url.replace(/^http:\/\//, 'http://www.corsproxy.com/')
-            get(url)
-                .then(function(xhr){
-                    this.onFileLoaded({
-                        data: xhr.responseText,
-                        name: url.split('/').pop()
-                    })
-                }.bind(this))
+            this.addTrackItemFromUrl(url);
         }
     },
 
@@ -161,6 +150,50 @@ L.Control.PrintPages.Tracks = L.Control.extend({
         var trackfile_layer = L.featureGroup(track_lines);
         return trackfile_layer.addTo(this._map);
     },
+
+    // options: url -- url or filename, retrivable -- if can be downloaded
+    _createPolyline: function(segment, color){
+        var track_lines = [];
+        for (var i=0; isegments.length; i++) {
+            var segment = track_segments[i]
+                .map(function(p){return {x: p.lng, y: p.lat}});
+            var segment_filtered = L.LineUtil.simplify(segment, 0.0002)
+                .map(function(p){return {lat: p.y, lng: p.x}});
+            track_lines.push(L.polyline(track_segments[i], {color: '#f00'}));
+            track_lines.push(L.polyline(segment_filtered));
+            console.log(track_segments[i].length);
+            console.log(segment_filtered.length);
+        }
+        var trackfile_layer = L.featureGroup(track_lines);
+        return trackfile_layer.addTo(this._map);
+    },
+
+    _addTrackItem: function(segments, options) {
+        var polyline = this._createPolyline(segments)
+    },
+
+    addTrackItemFromUrl: function(url) {
+        // TODO: first try direct request, fallback to proxy if CORS not available
+        // FIXME: error if https and using proxy and with other schemas
+        url = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
+        get(url)
+            .then(function(xhr) {
+                this.onFileLoaded({
+                    data: xhr.responseText,
+                    name: url.split('/').pop()
+                })
+            }.bind(this))
+    },
+
+    // file -- js file object as retrievd from file input`s property "files"'
+    addTrackItemFromFile: function(file) {
+        var loader = new L.LocalFileLoader();
+        loader.on('load', this.onFileLoaded, this);
+        loader.load(file);
+        this.fileInput.value = '';
+    },
+
+    addTrackItemFromEncodedString: function(s) {},
 
     onFileLoaded: function(file){
         console.log(this.createPolylinesFromFile(file.name, file.data));
