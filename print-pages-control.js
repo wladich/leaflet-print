@@ -308,25 +308,39 @@ L.Control.PrintPages = L.Control.extend({
         } else {
             zooms = [zoom, zoom];
         }
-        var images_data = this.sheets.map(
-            function(sheet){
-                var image_width, image_height;
-                if (sheet.isRotated()) {
-                     image_width = paper_height_pixels;
-                     image_height  = paper_width_pixels;
-                 } else {
-                     image_width = paper_width_pixels;
-                     image_height  = paper_height_pixels;
-                 }
-                return makeMapRectangleImage(this_._map, sheet.getLatLngBounds(), 
-                    zooms, zoom != 'auto',
-                    image_width, image_height, this_.notifyProgress.bind(this_));
-            });                
-        Promise.all(images_data).done(function(images){
-            console.log('Data ready')
-            var pdf_data = buildPDF(images, resolution);
-            downloadFile('map.pdf', 'application/pdf', pdf_data);
-            this_.stopProgress();
+
+        function makeImageForSheet(sheet) {
+            var image_width, image_height;
+            if (sheet.isRotated()) {
+                 image_width = paper_height_pixels;
+                 image_height  = paper_width_pixels;
+             } else {
+                 image_width = paper_width_pixels;
+                 image_height  = paper_height_pixels;
+             }
+            var strict_zoom = zoom != 'auto';
+            return makeMapRectangleImage(
+                this_._map,
+                sheet.getLatLngBounds(),
+                zooms, strict_zoom,
+                image_width, image_height,
+                this_.notifyProgress.bind(this_));
+        }
+
+        var images_data = this.sheets.map(function(sheet){
+            return makeImageForSheet(sheet).then(
+                function(image){
+                    image = drawTracks(image, this.tracks, this._map);
+                    return {width: image.width, height: image.height, data: canvasToData(image)};
+                });
+        });
+
+        Promise.all(images_data).done(
+            function(images){
+                console.log('Data ready')
+                var pdf_data = buildPDF(images, resolution);
+                downloadFile('map.pdf', 'application/pdf', pdf_data);
+                this_.stopProgress();
             });
         
     },

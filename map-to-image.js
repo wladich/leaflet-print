@@ -133,10 +133,14 @@ function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width,
     return Promise.all(layers).then(
         function(layer_groups){
             var images = layer_groups.reduce(function(a, b){return a.concat(b);});
-            var data = canvasToData(combineImages(images, target_width, target_height));
-            return {width: target_width, height: target_height, data: data};
+//            var data = canvasToData(combineImages(images, target_width, target_height));
+//            return {width: target_width, height: target_height, data: data};
+            return combineImages(images, target_width, target_height);
         }
     );
 }
 
-function drawTracks(canvas, tracks, map) {}
+function drawTracks(canvas, tracks, map) {
+    console.log('Drawing tracks', canvas);
+    return canvas;
+}
