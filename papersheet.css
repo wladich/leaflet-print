@@ -169,16 +169,20 @@ a.print-page-open-file {
     float: left;
 }
 
-a.print-page-download-file {
-    background-image: url('images/arrow_bottom.png');
+.download-pane {
+    margin-left: 1.5em;
     float: right;
 }
 
+a.print-page-download-file {
+    background-image: url('images/arrow_bottom.png');
+    float: left;
+}
+
 input.print-page-url-field {
-    float: right;
-    margin-left: 2em;
     margin-right: 4pt;
     line-height: 26px;
+    float: left;
 }
 
 a.track-delete-button {
@@ -189,6 +193,7 @@ a.track-delete-button {
     float: right;
     cursor: pointer;
 }
+
 
 .track-color-selector {
     width: 1em;
