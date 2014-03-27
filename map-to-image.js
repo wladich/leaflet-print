@@ -1,13 +1,14 @@
 "use strict";
+/* global L,Promise, Mosaic*/
 function getTempMap(width, height, center, zoom) {
     var container = L.DomUtil.create('div', 'offscreen-map', document.body);
     container.style.width = width + 'px';
-    container.style.height = height + 'px'; 
+    container.style.height = height + 'px';
     var map = new L.Map(container, {fadeAnimation: false, zoomAnimation: false, inertia: false});
     map.setView(center, zoom, {animate: false});
     return new Promise(
         function(resolve){
-            map.whenReady(function(){resolve(map)});
+            map.whenReady(function(){resolve(map);});
         });
 }
 
@@ -34,27 +35,27 @@ function makeLayerRectangleImage(layer, ll_bounds, zoom, progress){
                     disposeMap(temp_map);
                     var tile_progress = function(n){
                         progress(n / tiles.length);
-                    }
+                    };
                     var mosaic = new Mosaic(src_pixel_size.x, src_pixel_size.y, tile_progress);
                     for (var i=0; i < tiles.length; i++) {
                         var tile = tiles[i];
-                        var url = tile[0];                
+                        var url = tile[0];
                         var x = tile[1];
                         var y = tile[2];
                         var tile_size = tile[3];
                         if (x > -tile_size && y > -tile_size && x < src_pixel_size.x && y < src_pixel_size.y) {
                             if (layer.options.noCors) {
                                 url = 'http://proxy.wladich.tk/' + url.replace(/^https?:\/\//, '');
-                            };
+                            }
                             mosaic.putImage(url, x, y, tile_size);
                         }
-                    };
+                    }
                     return mosaic.getData();
                 }
             );
         }
-    )
-};
+    );
+}
 
 function combineImages(images, width, height) {
     var canvas = L.DomUtil.create('canvas');
@@ -63,11 +64,11 @@ function combineImages(images, width, height) {
     var ctx = canvas.getContext('2d');
     ctx.rect(0, 0, width, height);
     ctx.fillStyle="white";
-    ctx.fill();       
+    ctx.fill();
     for (var i=0; i < images.length; i++) {
-        ctx.drawImage(images[i], 0, 0, width, height);                
+        ctx.drawImage(images[i], 0, 0, width, height);
     }
-    return canvas
+    return canvas;
 }
 
 function canvasToData(canvas){
@@ -75,14 +76,14 @@ function canvasToData(canvas){
     data = data.substring(data.indexOf(',') + 1);
     data = atob(data);
     return data;
-};
+}
 
 function calcLayerDisplayedZooms(layer, ll_bounds, requested_zoom){
     var probes = [
-         ll_bounds.getCenter(), 
-         ll_bounds.getNorthEast(), 
-         ll_bounds.getNorthWest(), 
-         ll_bounds.getSouthEast(), 
+         ll_bounds.getCenter(),
+         ll_bounds.getNorthEast(),
+         ll_bounds.getNorthWest(),
+         ll_bounds.getSouthEast(),
          ll_bounds.getSouthWest()].map(layer.getMaxZoomAtPoint.bind(layer));
     return Promise.all(probes).then(
         function(res){
@@ -91,11 +92,11 @@ function calcLayerDisplayedZooms(layer, ll_bounds, requested_zoom){
             res.forEach(function(zoom){
                 var zoom2 = Math.min(zoom, requested_zoom);
                 displayed_zooms[zoom2] = true;
-            })
+            });
             displayed_zooms = Object.keys(displayed_zooms).sort();
             console.log(displayed_zooms);
             return displayed_zooms;
-        })
+        });
 }
 
 function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width, target_height, progress){
@@ -123,7 +124,7 @@ function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width,
                             layer_levels.push(makeLayerRectangleImage(layer_, ll_bounds, displayed_zooms[j], layer_level_progress));
                         }
                         return Promise.all(layer_levels);
-                    }
+                    };
                 }()
             );
             layers.push(layer_promise);
@@ -131,10 +132,11 @@ function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width,
     }
     return Promise.all(layers).then(
         function(layer_groups){
-            var images = layer_groups.reduce(function(a, b){return a.concat(b)});
+            var images = layer_groups.reduce(function(a, b){return a.concat(b);});
             var data = canvasToData(combineImages(images, target_width, target_height));
-            return {width: target_width, height: target_height, data: data}
+            return {width: target_width, height: target_height, data: data};
         }
     );
 }
 
+function drawTracks(canvas, tracks, map) {}
