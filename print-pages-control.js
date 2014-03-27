@@ -136,8 +136,8 @@ L.Control.PrintPages = L.Control.extend({
 
         L.DomEvent.disableClickPropagation(dialogContainer);
         
-        var tracks = new L.Control.PrintPages.Tracks();
-        tracks.addTo(map);
+        this.tracks = new L.Control.TrackList();
+        this.tracks.addTo(map);
         return dialogContainer;
     },
     
