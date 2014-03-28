@@ -133,14 +133,50 @@ function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width,
     return Promise.all(layers).then(
         function(layer_groups){
             var images = layer_groups.reduce(function(a, b){return a.concat(b);});
-//            var data = canvasToData(combineImages(images, target_width, target_height));
-//            return {width: target_width, height: target_height, data: data};
             return combineImages(images, target_width, target_height);
         }
     );
 }
 
-function drawTracks(canvas, tracks, map) {
+function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
+    var width_mm = 2,
+        width_px = width_mm / 25.4 * dpi;
+
+    function draw_track(track){
+        if (track.visible) {
+            track.segments.forEach(
+                function(segment){
+                    draw_segment(segment, track.color);
+                });
+        }
+    }
+    function draw_segment(segment, color){
+        var q = canvas.width / map.latLngBoundsToSizeInPixels(ll_bounds, 16).x;
+        var origin = map.project(ll_bounds.getNorthWest(), 16);
+        function trackPointToCanvasPixel(p){
+            return map.project(p, 16)
+                .subtract(origin)
+                .multiplyBy(q);
+        }
+        if (segment.length > 1) {
+            segment = segment.map(trackPointToCanvasPixel);
+            var ctx = canvas.getContext('2d');
+            ctx.globalAlpha = 0.5;
+            ctx.lineWidth = 10;
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(segment[0].x, segment[0].y);
+            for (var i=1; i < segment.length; i++) {
+                ctx.lineTo(segment[i].x, segment[i].y);
+            }
+            ctx.stroke();
+        }
+
+        console.log(segment);
+    }
+
+    tracks.forEach(draw_track);
     console.log('Drawing tracks', canvas);
     return canvas;
 }

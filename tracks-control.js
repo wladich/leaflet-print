@@ -46,7 +46,7 @@ L.Control.TrackList = L.Control.extend({
         return container;
     },
     
-    getTrcks: function() {
+    getTracks: function() {
         return this._tracks;
     },
 

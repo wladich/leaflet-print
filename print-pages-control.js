@@ -330,7 +330,7 @@ L.Control.PrintPages = L.Control.extend({
         var images_data = this.sheets.map(function(sheet){
             return makeImageForSheet(sheet).then(
                 function(image){
-                    image = drawTracks(image, this.tracks, this._map);
+                    image = drawTracks(image, sheet.getLatLngBounds(), this_.tracks.getTracks(), this_._map, resolution);
                     return {width: image.width, height: image.height, data: canvasToData(image)};
                 });
         });
