@@ -138,10 +138,50 @@ function makeMapRectangleImage(map, ll_bounds, zooms, strict_zoom, target_width,
     );
 }
 
+function blendCanvas(src, dest) {
+    var s_data = src.getContext('2d').getImageData(0, 0, src.width, src.height).data;
+    var d_image_data = dest.getContext('2d').getImageData(0, 0, src.width, src.height);
+    var d_data = d_image_data.data;
+    var data_length = s_data.length,
+        sr, sg, sb, sa,
+        dr, dg, db, da,
+        l;
+    for (var i=0; i < data_length; i += 4) {
+        sa = s_data[i+3];
+        if (sa) {
+            sr = s_data[i];
+            sg = s_data[i+1];
+            sb = s_data[i+2];
+            dr = d_data[i];
+            dg = d_data[i+1];
+            db = d_data[i+2];
+
+            l = (dr + dg + db) / 3;
+            l = l / 255 * 192 + 63;
+            dr = sr / 255 * l;
+            dg = sg / 255 * l;
+            db = sb / 255 * l;
+
+            d_data[i] = dr;
+            d_data[i+1] = dg;
+            d_data[i+2] = db;
+        }
+    }
+    dest.getContext('2d').putImageData(d_image_data, 0, 0);
+}
+
 function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
     var width_mm = 2,
         width_px = width_mm / 25.4 * dpi;
-
+    var tracks_canvas = L.DomUtil.create('canvas');
+    tracks_canvas.width = canvas.width;
+    tracks_canvas.height = canvas.height;
+    var ctx = tracks_canvas.getContext('2d');
+/*
+    ctx.rect(0,0, canvas.width, canvas.height);
+    ctx.fillStyle="white";
+    ctx.fill();
+*/
     function draw_track(track){
         if (track.visible) {
             track.segments.forEach(
@@ -160,9 +200,9 @@ function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
         }
         if (segment.length > 1) {
             segment = segment.map(trackPointToCanvasPixel);
-            var ctx = canvas.getContext('2d');
-            ctx.globalAlpha = 0.5;
-            ctx.lineWidth = 10;
+            var ctx = tracks_canvas.getContext('2d');
+            ctx.globalAlpha = 1;
+            ctx.lineWidth = width_px;
             ctx.lineJoin = 'round';
             ctx.strokeStyle = color;
             ctx.beginPath();
@@ -177,6 +217,8 @@ function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
     }
 
     tracks.forEach(draw_track);
-    console.log('Drawing tracks', canvas);
-    return canvas;
+    var t = new Date().getTime();
+    blendCanvas(tracks_canvas, canvas);
+    t = new Date().getTime() - t;
+        return canvas;
 }

@@ -9,7 +9,7 @@ L.Control.TrackList = L.Control.extend({
         'plt': L.Util.parseOziPlt
     },
 
-    colors: ['#f00', '#0f0', '#00f', '#f0f', '#0ff'],
+    colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
     onAdd: function(map){
         this._map = map;
