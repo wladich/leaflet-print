@@ -99,13 +99,14 @@ L.Control.TrackList = L.Control.extend({
     addTrackFromUrl: function(url) {
         // TODO: first try direct request, fallback to proxy if CORS not available
         // FIXME: error if https and using proxy and with other schemas
-        url = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
+        var url_for_request = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
         var name = url.split('/').pop();
         var _this = this;
-        get(url).done(function(xhr){
-            var data = xhr.responseText;
-            _this.addTrackFromFileData(name, url, data);
-        });
+        return get(url_for_request).then(
+                function(xhr) {
+                    var data = xhr.responseText;
+                    _this.addTrackFromFileData(name, url, data);
+                });
     },
 
     // file -- js file object as retrievd from file input`s property "files"'
