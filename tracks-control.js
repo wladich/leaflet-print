@@ -19,7 +19,8 @@ L.Control.TrackList = L.Control.extend({
             <div class="leaflet-control-tracklist-row">\
                         <a class="leaflet-control-button leaflet-control-tracklist-openfile" title="Open file"></a>\
                         <input type="text" class="leaflet-control-tracklist-url" placeholder="Track URL">\
-                        <a class="leaflet-control-button leaflet-control-tracklist-downloadfile" title="Download URL"></a>\
+                        <a class="leaflet-control-button leaflet-control-tracklist-downloadfile right" title="Download URL"></a>\
+                        <div class="leaflet-control-progress-unknown right hidden"></div>\
             </div>\
          ';
 
@@ -31,10 +32,10 @@ L.Control.TrackList = L.Control.extend({
         L.DomEvent.on(openButton, 'click', this.fileInput.click, this.fileInput);
         L.DomEvent.on(this.fileInput, 'change', this.onFileSelected, this);
 
-        var download_button = container.querySelector('.leaflet-control-tracklist-downloadfile');
+        this.download_button = container.querySelector('.leaflet-control-tracklist-downloadfile');
         this.url_field = container.querySelector('.leaflet-control-tracklist-url');
-        L.DomEvent.on(download_button, 'click', this.onDownloadButtonPressed, this);
-        
+        L.DomEvent.on(this.download_button, 'click', this.onDownloadButtonPressed, this);
+        this.progress_unknown_icon = container.querySelector('.leaflet-control-progress-unknown');
         this.elements_grid = container;
         return container;
     },
@@ -50,8 +51,22 @@ L.Control.TrackList = L.Control.extend({
     
     onDownloadButtonPressed: function() {
         var url = this.url_field.value.trim();
+        var hideSpinner = function() {
+            L.DomUtil.removeClass(this.download_button, 'hidden');
+            L.DomUtil.addClass(this.progress_unknown_icon, 'hidden');
+        }.bind(this);
+        var showSpinner = function() {
+            L.DomUtil.addClass(this.download_button, 'hidden');
+            L.DomUtil.removeClass(this.progress_unknown_icon, 'hidden');
+        }.bind(this);
         if (url) {
-            this.addTrackFromUrl(url);
+            showSpinner();
+            this.addTrackFromUrl(url).done(
+                hideSpinner,
+                function(err) {
+                    alert(L.Util.template('Failed to download track from url "{url}"', {url: url}));
+                    hideSpinner();
+                });
         }
         this.url_field.value = '';
     },

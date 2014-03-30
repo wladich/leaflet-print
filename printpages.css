@@ -8,6 +8,11 @@
     position: relative;
 }
 
+.right {
+    position: absolute !important;
+    right: 0;
+}
+
 .leaflet-control-progress-unknown {
     display: inline-block;
     border-radius: 4px 4px 4px 4px;
@@ -183,8 +188,6 @@ a.leaflet-control-tracklist-openfile {
 
 a.leaflet-control-tracklist-downloadfile {
     background-image: url('images/arrow_bottom.png');
-    position: absolute;
-    right: 0;
 }
 .leaflet-control-tracklist-visibility {
     display: inline-block;
