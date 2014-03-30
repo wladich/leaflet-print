@@ -172,18 +172,14 @@ function blendCanvas(src, dest) {
     dest.getContext('2d').putImageData(d_image_data, 0, 0);
 }
 
-function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
+function drawTracks(width, height, ll_bounds, tracks, map, dpi) {
     var width_mm = 2,
         width_px = width_mm / 25.4 * dpi;
     var tracks_canvas = L.DomUtil.create('canvas');
-    tracks_canvas.width = canvas.width;
-    tracks_canvas.height = canvas.height;
+    tracks_canvas.width = width;
+    tracks_canvas.height = height;
     var ctx = tracks_canvas.getContext('2d');
-/*
-    ctx.rect(0,0, canvas.width, canvas.height);
-    ctx.fillStyle="white";
-    ctx.fill();
-*/
+
     function draw_track(track){
         if (track.visible) {
             track.segments.forEach(
@@ -193,7 +189,7 @@ function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
         }
     }
     function draw_segment(segment, color){
-        var q = canvas.width / map.latLngBoundsToSizeInPixels(ll_bounds, 16).x;
+        var q = width / map.latLngBoundsToSizeInPixels(ll_bounds, 16).x;
         var origin = map.project(ll_bounds.getNorthWest(), 16);
         function trackPointToCanvasPixel(p){
             return map.project(p, 16)
@@ -220,7 +216,6 @@ function drawTracks(canvas, ll_bounds, tracks, map, dpi) {
 
     tracks.forEach(draw_track);
     var t = new Date().getTime();
-    blendCanvas(tracks_canvas, canvas);
     t = new Date().getTime() - t;
-        return canvas;
+    return tracks_canvas;
 }

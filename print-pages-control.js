@@ -323,19 +323,24 @@ L.Control.PrintPages = L.Control.extend({
                  image_height  = paper_height_pixels;
              }
             var strict_zoom = zoom != 'auto';
+            var tracks_canvas = drawTracks(image_width, image_height, sheet.getLatLngBounds(), this_.tracks.getTracks(), this_._map, resolution);
             return makeMapRectangleImage(
                 this_._map,
                 sheet.getLatLngBounds(),
                 zooms, strict_zoom,
                 image_width, image_height,
-                this_.notifyProgress.bind(this_));
+                this_.notifyProgress.bind(this_)).then(
+                    function(canvas){
+                        blendCanvas(tracks_canvas, canvas);
+                        return canvas;
+                    }
+                );
         }
 
         var images_data = this.sheets.map(function(sheet){
             return makeImageForSheet(sheet).then(
-                function(image){
-                    image = drawTracks(image, sheet.getLatLngBounds(), this_.tracks.getTracks(), this_._map, resolution);
-                    return {width: image.width, height: image.height, data: canvasToData(image)};
+                function(canvas){
+                    return {width: canvas.width, height: canvas.height, data: canvasToData(canvas)};
                 });
         });
 
