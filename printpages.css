@@ -1,0 +1,223 @@
+/*  common elements */
+
+.hidden {
+    display: none !important;
+}
+
+.positioned {
+    position: relative;
+}
+
+.leaflet-control-progress-unknown {
+    display: inline-block;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #ccc;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-image: url('images/spinner.gif');
+    width: 26px;
+    height: 26px;
+}
+
+
+.leaflet-control-progress {
+    position: relative;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #ccc;
+    height: 26px;
+    line-height: 26px;
+    padding: 0 4px;
+    vertical-align: middle;
+}
+
+.leaflet-control-progress-bkg {
+    display: inline-block;
+    width: 100%;
+    background-color: #ccc;
+    height: 10px;
+}
+
+.leaflet-control-progress-bar {
+    width: 0;
+    background-color: #888;
+    height: 100%    ;
+}
+
+a.leaflet-control-button, a.leaflet-control-text-button {
+    position: relative;
+    line-height: 26px !important;
+    display: inline-block;
+    width: 26px;
+    height: 26px;
+    border-radius: 4px 4px 4px 4px;
+    border: 1px solid #ccc;
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    cursor: pointer;    
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    vertical-align: middle;
+}
+
+a.leaflet-control-button:hover, a.leaflet-control-text-button:hover {
+    background-color: #f4f4f4;
+}
+
+a.leaflet-control-text-button {
+    font-size: 12px;
+    width: auto;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+a.leaflet-control-setvalue-link {
+    color: #999;
+    border-bottom: 1px dashed #999;
+    text-decoration: none;    
+    cursor: pointer;
+    margin-right: 0.7em;
+}
+
+/* page feature on the map */
+
+.paper-sheet-label {
+    color: #ff7800;
+    text-align: center;
+    opacity: 0.6;
+}
+
+/* print pages form */
+
+.leaflet-control-printpages {
+    position: relative;
+    background-color: white;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    padding: 5px 8px 5px 8px;
+}
+
+
+
+.leaflet-control-printpages table.form > tbody > tr {
+    border-bottom: 1px solid #eee;
+}
+
+.leaflet-control-printpages table.form > tbody > tr:last-child {
+    border-bottom: none;
+}
+
+.leaflet-control-printpages table.form > tbody > tr > td {
+    padding: 4pt;
+    vertical-align: bottom;
+}
+
+.leaflet-control-printpages-addlandscape {
+    background-image: url('images/add-page-horiz.png');
+    margin-left: 4pt;
+}
+
+.leaflet-control-printpages-addportrait {
+    background-image: url('images/add-page-vert.png');
+}
+
+a.leaflet-control-printpages-removeall {
+    position: absolute;
+    right: 0;
+}
+
+.leaflet-control-printpages-downloadpdf-row {
+    text-align: center;
+}
+
+
+.leaflet-control-values-list {
+    margin-bottom: 3pt;
+}
+
+.leaflet-control-printpages input {
+    padding: 0 2pt;
+    margin: 0;
+    border: 1px solid #777;
+    border-radius: 3px 3px 3px 3px;    
+}
+
+
+/* tracks control */
+.leaflet-control-tracklist {
+    position: relative;
+    background-color: white;
+    border-radius: 5px 5px 5px 5px;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+    padding: 8px 8px 8px 8px;
+    width: 200px;
+}
+
+.leaflet-control-tracklist-row {
+    position: relative;
+}
+
+.leaflet-control-tracklist-item-row {
+    position: relative;
+    white-space:nowrap;
+    margin-top: 4px;
+}
+
+.leaflet-control-tracklist-url {
+    display: inline-block;
+    position: absolute; 
+    right: 0;
+    width: 120px;
+    height: 26px;
+    line-height: 26px;
+    padding: 0 2pt;
+    border: 1px solid #777;
+    border-radius: 3px 3px 3px 3px;
+    margin-right: 32px;
+}   
+
+a.leaflet-control-tracklist-openfile {
+    background-image: url('images/folder_open.png');
+    }
+
+a.leaflet-control-tracklist-downloadfile {
+    background-image: url('images/arrow_bottom.png');
+    position: absolute;
+    right: 0;
+}
+.leaflet-control-tracklist-visibility {
+    display: inline-block;
+    margin: 0;
+    vertical-align: middle;
+}
+
+.leaflet-control-tracklist-color {
+    display: inline-block;
+    width: 16px;
+    height: 4px;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+
+.leaflet-control-tracklist-trackname {
+    display: inline-block;
+    margin-left: 2px;
+    color: #333;
+    border-bottom: 1px dashed #999;
+    cursor: pointer;
+    white-space:nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    max-width: 150px;
+    vertical-align: middle;
+}
+
+.leaflet-control-tracklist-delete {
+    position: absolute;
+    font-weight: bold;
+    right: 0;
+    color: #333 !important;
+    cursor: pointer;
+}

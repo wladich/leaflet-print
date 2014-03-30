@@ -8,85 +8,89 @@ L.Control.PrintPages = L.Control.extend({
     onAdd: function(map) {
         this._map = map;
         this.sheets = [];
-        var dialogContainer = L.DomUtil.create('div', 'leaflet-control leaflet-printpages-dialog');
+        var dialogContainer = L.DomUtil.create('div', 'leaflet-control leaflet-control-printpages');
         dialogContainer.innerHTML = '\
-        <table class="form">\
-            <tr>\
-                <td colspan="2">\
-                        <a title="Add page in portrait orientation" class="print-page-button print-page-add-portrait"></a>\
-                        <a title="Add page in landscape orientation" class="print-page-button print-page-add-landscape"></a>\
-                        <a title="Remove all pages" class="print-page-button print-page-dialog-remove-all-pages">X</a>\
-                </td>\
-            </tr>\
-            <tr>\
-                <td>Page size</td>\
-                <td>\
-                    <p class="print-page-sizes">\
-                        <a class="print-page-dialog-template-link" pagewidth="297" pageheight="420">A3</a>\
-                        <a class="print-page-dialog-template-link" pagewidth="210" pageheight="297">A4</a>\
-                        <a class="print-page-dialog-template-link" pagewidth="148" pageheight="210">A5</a>\
-                    </p>\
-                    <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="width" name="pagewidth" value="210">\
-                    x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
-                </td>\
-            </tr>\
-            <tr>\
-                <td>Margin</td>\
-                <td>\
-                    <table class="margincells">\
-                        <tr><td></td><td><input name="margin-top" "type="text" size="1" pattern="\\d+" maxlength="2" placeholder="top" value="3"></td><td></td></tr>\
-                        <tr>\
-                            <td><input name="margin-left" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="left" value="3"></td>\
-                            <td></td><td><input name="margin-right" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="right" value="3"> mm</td>\
-                        </tr>\
-                        <tr><td></td><td><input name="margin-bottom" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="bottom" value="3"></td><td></td></tr>\
-                    </table>\
-                </td>\
-            </tr>\
-            <tr>\
-                <td>Resolution</td>\
-                <td><input type="text" size="4" pattern="\\d+" maxlength="4" value=300 name="resolution"> dpi</td>\
-            </tr>\
-            <tr>\
-                <td>Map scale</td>\
-                <td>\
-                    <p class="print-page-scales">\
-                        <a class="print-page-dialog-template-link" mapscale=100000>1:100 000</a>\
-                        <a class="print-page-dialog-template-link" mapscale=50000>1:50 000</a>\
-                    </p>\
-                    1:<input type="text" size="6" pattern="\\d+" maxlength="6" name="mapscale" value="50000">\
-                </td>\
-            </tr>\
-            <tr>\
-                <td>Source zoom level</td>\
-                <td>\
-                    <select name="srczoom">\
-                        <option value="auto">auto</option>\
-                        <option value="7">7</option>\
-                        <option value="8">8</option>\
-                        <option value="9">9</option>\
-                        <option value="10">10</option>\
-                        <option value="11">11</option>\
-                        <option value="12">12</option>\
-                        <option value="13">13</option>\
-                        <option value="14">14</option>\
-                        <option value="15">15</option>\
-                        <option value="16">16</option>\
-                        <option value="17">17</option>\
-                        <option value="18">18</option>\
-                    </select>\
-                </td>\
-            </tr>\
-            <tr>\
-                <td colspan="2">\
-                    <div class="print-page-dialog-download-pane">\
-                        <a class="print-page-dialog-download-link" name="download-pdf">Download PDF</a>\
-                        <div class="progress-unknown hidden"><div class="progress-unknown-bar">|</div></div>\
-                        <div class="progress hidden"><div class="progress-bar-bkg"><div class="progress-bar"></div></div>\
+            <table class="form">\
+                <tr><td colspan="2">\
+                    <div class="positioned">\
+                        <a title="Add page in portrait orientation" class="leaflet-control-button leaflet-control-printpages-addportrait"></a>\
+                        <a title="Add page in landscape orientation" class="leaflet-control-button leaflet-control-printpages-addlandscape"></a>\
+                        <a title="Remove all pages" class="leaflet-control-button leaflet-control-printpages-removeall">X</a>\
                     </div>\
-                </td>\
-            </tr>\
-        </table>\
+                </td></tr>\
+                <tr>\
+                    <td>Map scale</td>\
+                    <td>\
+                        <p class="leaflet-control-values-list">\
+                            <a class="leaflet-control-setvalue-link" mapscale=100000>1:100 000</a>\
+                            <a class="leaflet-control-setvalue-link" mapscale=50000>1:50 000</a>\
+                        </p>\
+                        1:<input type="text" size="6" pattern="\\d+" maxlength="6" name="mapscale" value="50000">\
+                    </td>\
+                </tr>\
+                <tr>\
+                    <td>Page size</td>\
+                    <td>\
+                        <p class="leaflet-control-values-list">\
+                            <a class="leaflet-control-setvalue-link" pagewidth="297" pageheight="420">A3</a>\
+                            <a class="leaflet-control-setvalue-link" pagewidth="210" pageheight="297">A4</a>\
+                            <a class="leaflet-control-setvalue-link" pagewidth="148" pageheight="210">A5</a>\
+                        </p>\
+                        <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="width" name="pagewidth" value="210">\
+                        x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
+                    </td>\
+                </tr>\
+                <tr>\
+                    <td>Margin</td>\
+                    <td>\
+                        <table>\
+                            <tr><td></td><td><input name="margin-top" "type="text" size="1" pattern="\\d+" maxlength="2" placeholder="top" value="3"></td><td></td></tr>\
+                            <tr>\
+                                <td><input name="margin-left" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="left" value="3"></td>\
+                                <td></td><td><input name="margin-right" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="right" value="3"> mm</td>\
+                            </tr>\
+                            <tr><td></td><td><input name="margin-bottom" type="text" size="1" pattern="\\d+" maxlength="2" placeholder="bottom" value="3"></td><td></td></tr>\
+                        </table>\
+                    </td>\
+                </tr>\
+                <tr>\
+                    <td>Resolution</td>\
+                    <td><input type="text" size="4" pattern="\\d+" maxlength="4" value=300 name="resolution"> dpi</td>\
+                </tr>\
+                <tr>\
+                    <td>Source zoom<br />level</td>\
+                    <td>\
+                        <select name="srczoom">\
+                            <option value="auto">auto</option>\
+                            <option value="7">7</option>\
+                            <option value="8">8</option>\
+                            <option value="9">9</option>\
+                            <option value="10">10</option>\
+                            <option value="11">11</option>\
+                            <option value="12">12</option>\
+                            <option value="13">13</option>\
+                            <option value="14">14</option>\
+                            <option value="15">15</option>\
+                            <option value="16">16</option>\
+                            <option value="17">17</option>\
+                            <option value="18">18</option>\
+                        </select>\
+                    </td>\
+                </tr>\
+                <tr>\
+                    <td colspan="2">\
+                        <div class="positioned leaflet-control-printpages-downloadpdf-row">\
+                            <a class="leaflet-control-text-button" name="download-pdf">Download PDF</a>\
+                            <div class="leaflet-control-progress-unknown hidden"></div>\
+                            <div class="leaflet-control-progress hidden">\
+                                <div class="leaflet-control-progress-bkg">\
+                                    <div class="leaflet-control-progress-bar"></div>\
+                                </div>\
+                            </div>\
+                        </div>\
+                    </td>\
+                </tr>\
+            </table>\
         ';
         var this_control = this;
         this.page_width_field = dialogContainer.querySelector('input[name="pagewidth"]');
@@ -95,9 +99,9 @@ L.Control.PrintPages = L.Control.extend({
         this.resolution_field = dialogContainer.querySelector('input[name="resolution"]');
         this.src_zoom_field = dialogContainer.querySelector('select[name="srczoom"]');
         this.download_button = dialogContainer.querySelector('a[name="download-pdf"]');
-        this.progress_unknown_icon = dialogContainer.querySelector('.progress-unknown');
-        this.progress_container = dialogContainer.querySelector('.progress');
-        this.progress_bar = dialogContainer.querySelector('.progress-bar');
+        this.progress_unknown_icon = dialogContainer.querySelector('.leaflet-control-progress-unknown');
+        this.progress_container = dialogContainer.querySelector('.leaflet-control-progress');
+        this.progress_bar = dialogContainer.querySelector('.leaflet-control-progress-bar');
         this.margin_fields = [
             dialogContainer.querySelector('input[name="margin-top"]'),
             dialogContainer.querySelector('input[name="margin-right"]'),
@@ -120,9 +124,9 @@ L.Control.PrintPages = L.Control.extend({
                 this_control._changeMapScale();
             };
         };
-        dialogContainer.querySelector('.print-page-add-portrait').onclick = this._addSheetPortrait.bind(this);
-        dialogContainer.querySelector('.print-page-add-landscape').onclick = this._addSheetLandscape.bind(this);
-        dialogContainer.querySelector('a.print-page-dialog-remove-all-pages').onclick = this._removeAllPages.bind(this);        
+        dialogContainer.querySelector('.leaflet-control-printpages-addportrait').onclick = this._addSheetPortrait.bind(this);
+        dialogContainer.querySelector('.leaflet-control-printpages-addlandscape').onclick = this._addSheetLandscape.bind(this);
+        dialogContainer.querySelector('.leaflet-control-printpages-removeall').onclick = this._removeAllPages.bind(this);        
         this.download_button.onclick = this._downloadPDF.bind(this);
         this.page_width_field.onchange = this._changePaperSize.bind(this);
         this.page_height_field.onchange = this._changePaperSize.bind(this);

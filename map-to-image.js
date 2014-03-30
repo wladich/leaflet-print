@@ -1,7 +1,9 @@
 "use strict";
 /* global L,Promise, Mosaic*/
 function getTempMap(width, height, center, zoom) {
-    var container = L.DomUtil.create('div', 'offscreen-map', document.body);
+    var container = L.DomUtil.create('div', '', document.body);
+    container.style.position = 'absolute';
+    container.style.left = '20000px';
     container.style.width = width + 'px';
     container.style.height = height + 'px';
     var map = new L.Map(container, {fadeAnimation: false, zoomAnimation: false, inertia: false});

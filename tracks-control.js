@@ -14,35 +14,28 @@ L.Control.TrackList = L.Control.extend({
     onAdd: function(map){
         this._map = map;
         this._tracks = [];
-        var container = L.DomUtil.create('div', 'leaflet-control leaflet-printpages-dialog');
+        var container = L.DomUtil.create('div', 'leaflet-control leaflet-control-tracklist');
         container.innerHTML = '\
-            <table class="form">\
-                <tr>\
-                    <td colspan="4">\
-                        <a class="print-page-button print-page-open-file" title="Open file"></a>\
-                        <div class="download-pane">\
-                            <input type="text" class="print-page-url-field" placeholder="Track URL">\
-                            <a class="print-page-button print-page-download-file" title="Download URL"></a>\
-                        </div>\
-                    </td>\
-                </tr>\
-            </table>\
+            <div class="leaflet-control-tracklist-row">\
+                        <a class="leaflet-control-button leaflet-control-tracklist-openfile" title="Open file"></a>\
+                        <input type="text" class="leaflet-control-tracklist-url" placeholder="Track URL">\
+                        <a class="leaflet-control-button leaflet-control-tracklist-downloadfile" title="Download URL"></a>\
+            </div>\
          ';
 
         L.DomEvent.disableClickPropagation(container);
-
-        var openButton = container.querySelector('.print-page-open-file');
+        var openButton = container.querySelector('.leaflet-control-tracklist-openfile');
         this.fileInput = L.DomUtil.create('input', undefined, document.body);
         this.fileInput.type = 'file';
         this.fileInput.style.left = '-100000px';
         L.DomEvent.on(openButton, 'click', this.fileInput.click, this.fileInput);
         L.DomEvent.on(this.fileInput, 'change', this.onFileSelected, this);
 
-        var download_button = container.querySelector('.print-page-download-file');
-        this.url_field = container.querySelector('input.print-page-url-field');
+        var download_button = container.querySelector('.leaflet-control-tracklist-downloadfile');
+        this.url_field = container.querySelector('.leaflet-control-tracklist-url');
         L.DomEvent.on(download_button, 'click', this.onDownloadButtonPressed, this);
         
-        this.elements_grid = container.querySelector('table.form');
+        this.elements_grid = container;
         return container;
     },
     
@@ -76,12 +69,10 @@ L.Control.TrackList = L.Control.extend({
         }
     },
 
-
     getNextColor: function() {
         this._color_index = ((this._color_index | 0) + 1) % this.colors.length;
         return this.colors[this._color_index];
     },
-
     
     removeTrack: function(track, list_item) {
         track.remove();
@@ -89,7 +80,6 @@ L.Control.TrackList = L.Control.extend({
         var i = this._tracks.indexOf(track);
         this._tracks.splice(i, 1);
     },
-
 
     addTrackFromUrl: function(url) {
         // TODO: first try direct request, fallback to proxy if CORS not available
@@ -110,13 +100,7 @@ L.Control.TrackList = L.Control.extend({
                 function(resp){
                     _this.addTrackFromFileData(resp.name, null, resp.data);
                 }.bind(this));
-    },
-
-    addTrackFromEncodedString: function(s) {},
-
-//    onFileLoaded: function(file){
-//        console.log(this.createPolylinesFromFile(file.name, file.data));
-//    }
+    }
 });
 
 
@@ -124,16 +108,20 @@ L.Control.TrackList.ListItem = L.Class.extend({
     includes: L.Mixin.Events,
 
     initialize: function(parent, name, url, color) {
-        var el = this.element = L.DomUtil.create('tr', '', parent);
+        var el = this.element = L.DomUtil.create('div', 'leaflet-control-tracklist-row', parent);
         el.innerHTML = '\
-            <td><input type="checkbox" checked="checked"></td>\
-            <td><div class="track-color-selector"></div></td>\
-            <td><span class="track-name" title="' + (url || name) + '">' + name + '</span></td>\
-            <td><a class="track-delete-button" title="Remove track">X</a></td>';
+            <div class="leaflet-control-tracklist-item-row">\
+                <input type="checkbox" checked="checked" class="leaflet-control-tracklist-visibility">\
+                <div class="leaflet-control-tracklist-color" style="background-color: #f00"></div>\
+                <span class="leaflet-control-tracklist-trackname" title="' + (url || name) + '">' + name + '</span>\
+                <a class="leaflet-control-tracklist-delete" title="Remove track">X</a>\
+            </div>\
+            ';
+
         this.visibility_checkbox = el.querySelector('input');
-        this.color_legend =  el.querySelector('.track-color-selector');
-        var delete_button = el.querySelector('a.track-delete-button');
-        var track_name = el.querySelector('.track-name');
+        this.color_legend =  el.querySelector('.leaflet-control-tracklist-color');
+        var delete_button = el.querySelector('a.leaflet-control-tracklist-delete');
+        var track_name = el.querySelector('.leaflet-control-tracklist-trackname');
         this.setColor(color);
 
         L.DomEvent.on(this.visibility_checkbox, 'click', this.onVisibilityCheckboxClicked, this);
