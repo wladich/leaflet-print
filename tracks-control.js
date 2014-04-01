@@ -26,7 +26,7 @@ L.Control.TrackList = L.Control.extend({
 
         L.DomEvent.disableClickPropagation(container);
         var openButton = container.querySelector('.leaflet-control-tracklist-openfile');
-        this.fileInput = L.DomUtil.create('input', undefined, document.body);
+        this.fileInput = L.DomUtil.create('input', '', document.body);
         this.fileInput.type = 'file';
         this.fileInput.style.left = '-100000px';
         L.DomEvent.on(openButton, 'click', this.fileInput.click, this.fileInput);
@@ -79,8 +79,9 @@ L.Control.TrackList = L.Control.extend({
             var list_item = new L.Control.TrackList.ListItem(this.elements_grid, name, url, color);
             this._tracks.push(track);
             list_item.on('visibilitychanged', function(e){track.setVisibility(e.visible);});
-            list_item.on('remove', function(){this.removeTrack(track, list_item);}, this);
-            list_item.on('focus', track.focusMap, track);
+            list_item.on('remove', function() {this.removeTrack(track, list_item);}, this);
+            list_item.on('focus', track.zoomMapToTrack, track);
+            list_item.on('colorchanged', function(e) {track.setColor(e.color)}, track);
         }
     },
 
@@ -143,6 +144,7 @@ L.Control.TrackList.ListItem = L.Class.extend({
         L.DomEvent.on(this.visibility_checkbox, 'click', this.onVisibilityCheckboxClicked, this);
         L.DomEvent.on(delete_button, 'click', this.onRemoveButtonClicked, this);
         L.DomEvent.on(track_name, 'click', this.onNameClicked, this);
+        new L.Contextmenu(this.color_legend, this._getContextmenuItems(), true, false);
         return el;
     },
 
@@ -174,6 +176,18 @@ L.Control.TrackList.ListItem = L.Class.extend({
 
     getElement: function() {
         return this.element;
+    },
+
+    onSelectNewColor: function(color) {
+        this.setColor(color);
+        this.fire('colorchanged', {color: color});
+    },
+
+    _getContextmenuItems: function() {
+        var colors = L.Control.TrackList.prototype.colors;
+        return colors.map(function(color) {
+            return {text: '<div style="display: inline-block; vertical-align: middle; width: 50px; height: 4px; background-color: ' + color + '"></div>', callback: this.onSelectNewColor.bind(this, color)};
+        }.bind(this));
     }
 });
 
@@ -234,7 +248,8 @@ L.Control.TrackList.Track = L.Class.extend({
         }
     },
 
-    focusMap: function() {
+    zoomMapToTrack: function() {
         this._map.fitBounds(this.feature.getBounds());
-    }
+    },
+
 });

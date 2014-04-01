@@ -201,6 +201,10 @@ a.leaflet-control-tracklist-downloadfile {
     height: 4px;
     vertical-align: middle;
     margin-left: 2px;
+    border-top-width: 6px;
+    border-bottom-width: 6px;
+    border-color: white;
+    border-style: solid;
 }
 
 
