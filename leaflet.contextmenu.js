@@ -113,10 +113,12 @@ L.Contextmenu = L.Class.extend({
 	},
 
 	handleEvent: function(e) {
-		for (var i=0; i < this._container.children.length; i++) {
-			if (this._container.children[i] === e.target) {
-				return;
+		var el = e.target;
+		while (el.parentNode) {
+			if (el.parentNode === this._container) {
+				return
 			}
+			el = el.parentNode;
 		}
 		this.hide();
 	},
