@@ -15,7 +15,8 @@
     display: block;
     color: #222;
     font-size: 12px;
-    line-height: 20px;
+    line-height: 16px;
+    height: 16px;
     text-decoration: none;
     padding: 0 12px;
     border-top: 1px solid transparent;
@@ -40,5 +41,5 @@
     text-align: center;
     width: 100%;
     line-height: 1px;
-    margin: 5px 0;
+    margin: 8px 0;
 }
