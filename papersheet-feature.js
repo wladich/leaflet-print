@@ -1,3 +1,4 @@
+/* global L */
 "use strict";
 L.PaperSheet = L.FeatureGroup.extend({
     initialize: function(latlng, options, parent_control){
@@ -6,16 +7,14 @@ L.PaperSheet = L.FeatureGroup.extend({
         this._rect = L.rectangle([[0,0], [1,1]], {color: "#ff7800", weight: 1});
         var icon = L.divIcon({className: "paper-sheet-label", html: options.label});
         this._label_text = options.label;
-        this._marker = L.marker(latlng, {icon: icon,  draggable: true,
-            contextmenu: true,
-            contextmenuItems: this._getContextmenuItems.bind(this)
-        });
+        this._marker = L.marker(latlng, {icon: icon,  draggable: true});
+        this._marker.bindContextmenu(this._getContextmenuItems.bind(this));
         setTimeout(function(){
             this._marker._icon.title = 'Left click to rotate, right click for menu';
         }.bind(this), 0);
 
         this._marker.on('drag', this._updatePositionFromMarker, this);
-        this._marker.on('dragend', function(){this.fire('dragend')}, this);        
+        this._marker.on('dragend', function(){this.fire('dragend')}, this);
         this._marker.on('click', this.rotate, this);
         L.FeatureGroup.prototype.initialize.call(this, [this._rect, this._marker]);
     },
@@ -24,17 +23,16 @@ L.PaperSheet = L.FeatureGroup.extend({
     addTo: function(map){
         this._map = map;
         map.addLayer(this);
-        this._map.on('zoomend', this._updatePositionFromMarker, this);        
+        this._map.on('zoomend', this._updatePositionFromMarker, this);
         this._updatePositionFromMarker();
     },
     
     
     remove: function() {
         this.fire('remove', {target: this});
-    }, 
+    },
     
     removeFrom: function() {
-        this._map.contextmenu.hide();
         this._map.off('zoomend', this._updatePositionFromMarker);
         this._map.removeLayer(this);
         this._map = undefined;
@@ -87,7 +85,6 @@ L.PaperSheet = L.FeatureGroup.extend({
             label.style.marginTop = -pixel_size.y / 2 + 'px';
             label.style.lineHeight = pixel_size.y  + 'px';
             label.style.fontSize = Math.min(pixel_size.y / 2, 250) + 'px';
-            return
         }
     },
 
@@ -96,7 +93,7 @@ L.PaperSheet = L.FeatureGroup.extend({
     },
 
     getSizeInPixels: function(zoom) {
-        var sheet_lat_lng_bounds = this.getLatLngBounds();        
+        var sheet_lat_lng_bounds = this.getLatLngBounds();
         var pixel_size = this._map.boundsToSizeInPixels(sheet_lat_lng_bounds, zoom);
         return pixel_size;
     },
@@ -110,8 +107,8 @@ L.PaperSheet = L.FeatureGroup.extend({
             {
                 text: 'Rotate',
                 callback: this.rotate.bind(this)
-            }, 
-            '-', 
+            },
+            '-',
             {
                 text: 'Delete',
                 callback: this.remove.bind(this)
@@ -123,13 +120,11 @@ L.PaperSheet = L.FeatureGroup.extend({
                 if (i != this._label_text)
                     items.push({
                         text: i, 
-                        context: this,
-                        callback: function(){
-                            var i_=i;
+                        callback: function(idx, this_){
                             return function(){
-                                this.parent.changePageIndex(this._label_text-1, i_-1);
-                            }
-                        }()
+                                this_.parent.changePageIndex(this_._label_text-1, idx - 1);
+                            };
+                        }(i, this)
                     });
                 
         }
