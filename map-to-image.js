@@ -173,7 +173,7 @@ function blendCanvas(src, dest) {
 }
 
 function drawTracks(width, height, ll_bounds, tracks, map, dpi) {
-    var width_mm = 2,
+    var width_mm = 1,
         width_px = width_mm / 25.4 * dpi;
     var tracks_canvas = L.DomUtil.create('canvas');
     tracks_canvas.width = width;
