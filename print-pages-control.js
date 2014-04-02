@@ -22,8 +22,8 @@ L.Control.PrintPages = L.Control.extend({
                     <td>Map scale</td>\
                     <td>\
                         <p class="leaflet-control-values-list">\
-                            <a class="leaflet-control-setvalue-link" mapscale=100000>1:100 000</a>\
-                            <a class="leaflet-control-setvalue-link" mapscale=50000>1:50 000</a>\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-scale" mapscale=100000>1:100 000</a>\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-scale" mapscale=50000>1:50 000</a>\
                         </p>\
                         1:<input type="text" size="6" pattern="\\d+" maxlength="6" name="mapscale" value="50000">\
                     </td>\
@@ -32,9 +32,9 @@ L.Control.PrintPages = L.Control.extend({
                     <td>Page size</td>\
                     <td>\
                         <p class="leaflet-control-values-list">\
-                            <a class="leaflet-control-setvalue-link" pagewidth="297" pageheight="420">A3</a>\
-                            <a class="leaflet-control-setvalue-link" pagewidth="210" pageheight="297">A4</a>\
-                            <a class="leaflet-control-setvalue-link" pagewidth="148" pageheight="210">A5</a>\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="297" pageheight="420">A3</a>\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="210" pageheight="297">A4</a>\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="148" pageheight="210">A5</a>\
                         </p>\
                         <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="width" name="pagewidth" value="210">\
                         x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
@@ -108,8 +108,8 @@ L.Control.PrintPages = L.Control.extend({
             dialogContainer.querySelector('input[name="margin-bottom"]'),
             dialogContainer.querySelector('input[name="margin-left"]')
             ];
-        var page_format_links = dialogContainer.querySelectorAll('p.print-page-sizes a');
-        var map_scale_links = dialogContainer.querySelectorAll('p.print-page-scales a');
+        var page_format_links = dialogContainer.querySelectorAll('a.leaflet-control-setvalue-pagesize');
+        var map_scale_links = dialogContainer.querySelectorAll('a.leaflet-control-setvalue-scale');
 
         for (var i=0; i<page_format_links.length; i++) {
             page_format_links[i].onclick = function() {
