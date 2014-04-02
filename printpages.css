@@ -109,7 +109,7 @@ a.leaflet-control-setvalue-link {
     border-bottom: 1px solid #eee;
 }
 
-.leaflet-control-printpages table.form > tbody > tr:last-child {
+.leaflet-control-printpages table.form > tbody:last-child > tr:last-child {
     border-bottom: none;
 }
 
@@ -148,6 +148,24 @@ a.leaflet-control-printpages-removeall {
     border-radius: 3px 3px 3px 3px;    
 }
 
+.leaflet-control-printpages-settings-summary {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+
+.leaflet-control-printpages-settings {
+    float_: left;
+    display: inline-block !important;
+    margin-right: 0.5em;
+    vertical-align: middle;
+    background-image: url('images/settings.png');
+    line-height: 100%;
+}
+
+.leaflet-control-printpages-minimized .leaflet-control-printpages-hidable {
+    display: none;
+}
 
 /* tracks control */
 .leaflet-control-tracklist {
@@ -205,11 +223,12 @@ a.leaflet-control-tracklist-downloadfile {
     border-bottom-width: 6px;
     border-color: white;
     border-style: solid;
+    cursor: pointer;
 }
 
 
 .leaflet-control-tracklist-trackname {
-    display: inline-block;
+    display: inline-block !important;
     margin-left: 2px;
     color: #333;
     border-bottom: 1px dashed #999;
@@ -228,3 +247,4 @@ a.leaflet-control-tracklist-downloadfile {
     color: #333 !important;
     cursor: pointer;
 }
+

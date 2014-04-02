@@ -8,7 +8,7 @@ L.Control.PrintPages = L.Control.extend({
     onAdd: function(map) {
         this._map = map;
         this.sheets = [];
-        var dialogContainer = L.DomUtil.create('div', 'leaflet-control leaflet-control-printpages');
+        var dialogContainer = this._container = L.DomUtil.create('div', 'leaflet-control leaflet-control-printpages leaflet-control-printpages-minimized');
         dialogContainer.innerHTML = '\
             <table class="form">\
                 <tr><td colspan="2">\
@@ -28,7 +28,7 @@ L.Control.PrintPages = L.Control.extend({
                         1:<input type="text" size="6" pattern="\\d+" maxlength="6" name="mapscale" value="50000">\
                     </td>\
                 </tr>\
-                <tr>\
+                <tr class="leaflet-control-printpages-hidable">\
                     <td>Page size</td>\
                     <td>\
                         <p class="leaflet-control-values-list">\
@@ -40,7 +40,7 @@ L.Control.PrintPages = L.Control.extend({
                         x <input type="text" size="3" pattern="\\d+" maxlength="3" placeholder="height" name="pageheight" value="297"> mm\
                     </td>\
                 </tr>\
-                <tr>\
+                <tr class="leaflet-control-printpages-hidable">\
                     <td>Margin</td>\
                     <td>\
                         <table>\
@@ -53,11 +53,11 @@ L.Control.PrintPages = L.Control.extend({
                         </table>\
                     </td>\
                 </tr>\
-                <tr>\
+                <tr class="leaflet-control-printpages-hidable">\
                     <td>Resolution</td>\
                     <td><input type="text" size="4" pattern="\\d+" maxlength="4" value=300 name="resolution"> dpi</td>\
                 </tr>\
-                <tr>\
+                <tr class="leaflet-control-printpages-hidable">\
                     <td>Source zoom<br />level</td>\
                     <td>\
                         <select name="srczoom">\
@@ -77,6 +77,13 @@ L.Control.PrintPages = L.Control.extend({
                         </select>\
                     </td>\
                 </tr>\
+                <tr><td colspan="2">\
+                        <a class="leaflet-control-button leaflet-control-printpages-settings"></a>\
+                        <p class="leaflet-control-printpages-settings-summary">\
+                            <span class="leaflet-control-printpages-settings-width">222</span>&nbsp;x&nbsp;<span class="leaflet-control-printpages-settings-height">333</span>&nbsp;mm,<br/>\
+                            <span class="leaflet-control-printpages-settings-resolution">300</span>&nbsp;dpi, zoom&nbsp;<span class="leaflet-control-printpages-settings-zoom">auto</span>\
+                        </p>\
+                </td></tr>\
                 <tr>\
                     <td colspan="2">\
                         <div class="positioned leaflet-control-printpages-downloadpdf-row">\
@@ -108,6 +115,11 @@ L.Control.PrintPages = L.Control.extend({
             dialogContainer.querySelector('input[name="margin-bottom"]'),
             dialogContainer.querySelector('input[name="margin-left"]')
             ];
+        this.settings_display_width = dialogContainer.querySelector('.leaflet-control-printpages-settings-width');
+        this.settings_display_height = dialogContainer.querySelector('.leaflet-control-printpages-settings-height');
+        this.settings_display_resolution = dialogContainer.querySelector('.leaflet-control-printpages-settings-resolution');
+        this.settings_display_zoom = dialogContainer.querySelector('.leaflet-control-printpages-settings-zoom');
+        
         var page_format_links = dialogContainer.querySelectorAll('a.leaflet-control-setvalue-pagesize');
         var map_scale_links = dialogContainer.querySelectorAll('a.leaflet-control-setvalue-scale');
 
@@ -127,6 +139,7 @@ L.Control.PrintPages = L.Control.extend({
         dialogContainer.querySelector('.leaflet-control-printpages-addportrait').onclick = this._addSheetPortrait.bind(this);
         dialogContainer.querySelector('.leaflet-control-printpages-addlandscape').onclick = this._addSheetLandscape.bind(this);
         dialogContainer.querySelector('.leaflet-control-printpages-removeall').onclick = this._removeAllPages.bind(this);        
+        dialogContainer.querySelector('.leaflet-control-printpages-settings').onclick = this._toggleSettings.bind(this);
         this.download_button.onclick = this._downloadPDF.bind(this);
         this.page_width_field.onchange = this._changePaperSize.bind(this);
         this.page_height_field.onchange = this._changePaperSize.bind(this);
@@ -142,6 +155,8 @@ L.Control.PrintPages = L.Control.extend({
         
         this.tracks = new L.Control.TrackList();
         this.tracks.addTo(map);
+        this.on('change', this._updateSettingsSummary, this);
+        this.fire('change');
         return dialogContainer;
     },
     
@@ -187,6 +202,14 @@ L.Control.PrintPages = L.Control.extend({
         this.fire('change');        
     },
     
+    _updateSettingsSummary: function() {
+        var size = this.getPaperSize();
+        this.settings_display_width.innerHTML = size[0];
+        this.settings_display_height.innerHTML = size[1];
+        this.settings_display_zoom.innerHTML = this.getSourceZoom();
+        this.settings_display_resolution.innerHTML = this.getResolution();
+    },
+
     _addSheet: function(latlng, rotated) {
         var paper_size = this.getPaperSize();
         var sheet = new L.PaperSheet(latlng, 
@@ -354,6 +377,14 @@ L.Control.PrintPages = L.Control.extend({
         
     },
     
+    _toggleSettings: function() {
+        if (L.DomUtil.hasClass(this._container, 'leaflet-control-printpages-minimized')) {
+            L.DomUtil.removeClass(this._container, 'leaflet-control-printpages-minimized')
+        } else {
+            L.DomUtil.addClass(this._container, 'leaflet-control-printpages-minimized');
+        }
+    },
+
     _serializeState: function(){
         var state = [];
         state.push(this.page_width_field.value);
