@@ -14,13 +14,28 @@ function get(url, responseType){
     });
 }
 
+function arrayBufferToString(arBuf) {
+    var arr = new Uint8Array(arBuf);
+    arr = Array.prototype.slice.call(arr);
+    var s = [];
+    var chunk;
+    for (var i = 0; i < arr.length; i+=4096) {
+        chunk = arr.slice(i, i + 4096);
+        chunk = String.fromCharCode.apply(null,chunk);
+        s.push(chunk);
+    }
+            
+    return s.join('');
+}
+
+
 function readFile(file) {
      return new Promise(function(resolve){
          var reader = new FileReader();
          reader.onload = function (e) {
             resolve({name: file.name, data: e.target.result, isLocal: true});
          };
-         reader.readAsText(file);
+         reader.readAsArrayBuffer(file);
      });
 }
 
@@ -46,8 +61,7 @@ function loadImage(url){
                 console.log('Retrying', url);
                 return loadImage(url);
             }
-            var arr = new Uint8Array(req.response);
-            var raw = String.fromCharCode.apply(null,arr);
+            var raw = arrayBufferToString(req.response);
             if (!checkImage(raw)) {
                 console.log('Retrying', url);
                 return loadImage(url);

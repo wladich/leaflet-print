@@ -74,14 +74,14 @@ L.Control.TrackList = L.Control.extend({
     addTrackFromFileData: function(name, url, text) {
         var geo_data = L.Util.parseTrackFile(text, name);
         var color = this.getNextColor();
-        if (geo_data.tracks) {
+        if (geo_data && geo_data.tracks) {
             var track = new L.Control.TrackList.Track(geo_data.tracks, this._map, color);
             var list_item = new L.Control.TrackList.ListItem(this.elements_grid, name, url, color);
             this._tracks.push(track);
             list_item.on('visibilitychanged', function(e){track.setVisibility(e.visible);});
             list_item.on('remove', function() {this.removeTrack(track, list_item);}, this);
             list_item.on('focus', track.zoomMapToTrack, track);
-            list_item.on('colorchanged', function(e) {track.setColor(e.color)}, track);
+            list_item.on('colorchanged', function(e) {track.setColor(e.color);}, track);
         }
     },
 
@@ -103,10 +103,11 @@ L.Control.TrackList = L.Control.extend({
         var url_for_request = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
         var name = url.split('/').pop();
         var _this = this;
-        return get(url_for_request).then(
-                function(xhr) {
-                    var data = xhr.responseText;
-                    _this.addTrackFromFileData(name, url, data);
+        // TODO: Add retries for errors
+        return get(url_for_request, 'arraybuffer').then(
+                function(req) {
+                    var raw = arrayBufferToString(req.response);
+                    _this.addTrackFromFileData(name, url, raw);
                 });
     },
 
@@ -115,7 +116,7 @@ L.Control.TrackList = L.Control.extend({
         var _this = this;
         readFile(file).done(
                 function(resp){
-                    _this.addTrackFromFileData(resp.name, null, resp.data);
+                    _this.addTrackFromFileData(resp.name, null, arrayBufferToString(resp.data));
                 }.bind(this));
     }
 });
