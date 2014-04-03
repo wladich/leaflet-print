@@ -32,6 +32,7 @@ L.Control.PrintPages = L.Control.extend({
                     <td>Page size</td>\
                     <td>\
                         <p class="leaflet-control-values-list">\
+                            <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="420" pageheight="594">A2</a>\
                             <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="297" pageheight="420">A3</a>\
                             <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="210" pageheight="297">A4</a>\
                             <a class="leaflet-control-setvalue-link leaflet-control-setvalue-pagesize" pagewidth="148" pageheight="210">A5</a>\
