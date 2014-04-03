@@ -2,7 +2,7 @@
 "use strict";
 
 L.Control.TrackList = L.Control.extend({
-    options: {position: 'topright'},
+    options: {position: 'bottomright'},
     
     parsers: {
         'gpx': L.Util.parseGpx,
