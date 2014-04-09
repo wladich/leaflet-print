@@ -198,6 +198,12 @@ L.Control.TrackList.Track = L.Class.extend({
     initialize: function(segments, map, color) {
         this.segments = segments.map(this._simplifySegment);
         this._map = map;
+//// uncomment for debugging or tuning lines simplification
+/*
+        segments.forEach(function(segment){
+            L.polyline(segment, {color: 'red'}).addTo(this._map);
+        }.bind(this));
+*/
         this.polylines = this.segments.map(
             function(l) {
                 return L.polyline(l, {color: color});
@@ -208,8 +214,6 @@ L.Control.TrackList.Track = L.Class.extend({
     },
 
     _simplifySegment: function(segment) {
-        var segment_filtered;
-
         function latlngToXy(p) {
             return  {x: p.lng, y: p.lat};
         }
@@ -217,7 +221,7 @@ L.Control.TrackList.Track = L.Class.extend({
             return  {lat: p.y, lng: p.x};
         }
         segment = segment.map(latlngToXy);
-        segment = L.LineUtil.simplify(segment, 0.0002).
+        segment = L.LineUtil.simplify(segment, 0.0002);
         segment = segment.map(xyToLatlng);
         return segment;
     },
