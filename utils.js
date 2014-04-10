@@ -1,4 +1,7 @@
+/* global Promise */
+
 "use strict";
+
 function get(url, responseType){
     return new Promise(function(resolve){
         var xhr = new XMLHttpRequest();
@@ -9,7 +12,7 @@ function get(url, responseType){
             if (this.readyState == 4){
                 resolve(this);
             }
-        }
+        };
         xhr.send();
     });
 }
@@ -33,23 +36,23 @@ function readFile(file) {
      return new Promise(function(resolve){
          var reader = new FileReader();
          reader.onload = function (e) {
-            resolve({name: file.name, data: e.target.result, isLocal: true});
+            resolve(arrayBufferToString(e.target.result));
          };
          reader.readAsArrayBuffer(file);
      });
 }
 
 function checkImage(s){
-    return  (s.substring(0, 4) == '\x89PNG' && s.substring(s.length-8) == 'IEND\xae\x42\x60\x82') || 
-            (s.substring(0, 2) == '\xff\xd8' && s.substring(s.length-2) == '\xff\xd9')
+    return  (s.substring(0, 4) == '\x89PNG' && s.substring(s.length-8) == 'IEND\xae\x42\x60\x82') ||
+            (s.substring(0, 2) == '\xff\xd8' && s.substring(s.length-2) == '\xff\xd9');
 }
 
 function later(time, f, ctx, args) {
     return new Promise(function(resolve){
         setTimeout(function(){
             resolve(f.apply(ctx, args));
-        }, time)
-    })
+        }, time);
+    });
 }
 
 function loadImage(url){
@@ -65,7 +68,7 @@ function loadImage(url){
             if (!checkImage(raw)) {
                 console.log('Retrying', url);
                 return loadImage(url);
-            } 
+            }
             var image = new Image();
             return new Promise(function(resolve){
                 image.onload=function(){
@@ -73,9 +76,8 @@ function loadImage(url){
                 };
                 image.src = 'data:image/png;base64,' + btoa(raw);
             });
-            return image;
         } else if (req.status == 404) {
-            return null
+            return null;
         } else {
             console.log('Retrying', url);
             return later(1000, loadImage, null, [url]);

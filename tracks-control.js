@@ -1,4 +1,4 @@
-/* global L */
+/* global L, Promise, readFile, get */
 "use strict";
 
 L.Control.TrackList = L.Control.extend({
@@ -16,6 +16,9 @@ L.Control.TrackList = L.Control.extend({
         this._tracks = [];
         var container = L.DomUtil.create('div', 'leaflet-control leaflet-control-tracklist');
         container.innerHTML = '\
+            <div class="leaflet-control-tracklist-row leaflet-control-tracklist-hint">\
+                GPX Ozi GoogleEarth ZIP YandexMaps\
+            </div>\
             <div class="leaflet-control-tracklist-row">\
                         <a class="leaflet-control-button leaflet-control-tracklist-openfile" title="Open file"></a>\
                         <input type="text" class="leaflet-control-tracklist-url" placeholder="Track URL">\
@@ -28,6 +31,7 @@ L.Control.TrackList = L.Control.extend({
         var openButton = container.querySelector('.leaflet-control-tracklist-openfile');
         this.fileInput = L.DomUtil.create('input', '', document.body);
         this.fileInput.type = 'file';
+        this.fileInput.multiple = 'true';
         this.fileInput.style.left = '-100000px';
         L.DomEvent.on(openButton, 'click', this.fileInput.click, this.fileInput);
         L.DomEvent.on(this.fileInput, 'change', this.onFileSelected, this);
@@ -45,43 +49,109 @@ L.Control.TrackList = L.Control.extend({
     },
 
     onFileSelected: function() {
-        this.addTrackFromFile(this.fileInput.files[0]);
-        this.fileInput.value = '';
-        },
+        var this_ = this;
+        var files = Array.prototype.slice.apply(this.fileInput.files);
+        var files_contents = files.map(readFile);
+        Promise.all(files_contents).done(function(files_contents) {
+            var geodata_array = [];
+            for (var i=0; i < files.length; i++) {
+                geodata_array.push.apply(geodata_array, L.Util.parseGeoFile(files[i].name, files_contents[i]));
+            }
+            this_.addTracksFromGeodataArray(geodata_array);
+        });
+
+    },
     
     onDownloadButtonPressed: function() {
         var url = this.url_field.value.trim();
-        var hideSpinner = function() {
-            L.DomUtil.removeClass(this.download_button, 'hidden');
-            L.DomUtil.addClass(this.progress_unknown_icon, 'hidden');
-        }.bind(this);
-        var showSpinner = function() {
-            L.DomUtil.addClass(this.download_button, 'hidden');
-            L.DomUtil.removeClass(this.progress_unknown_icon, 'hidden');
-        }.bind(this);
         if (url) {
-            showSpinner();
-            this.addTrackFromUrl(url).done(
-                hideSpinner,
-                function(err) {
-                    alert(L.Util.template('Failed to download track from url "{url}"', {url: url}));
-                    hideSpinner();
+            var geodata = L.Util.parseGeoFile('', url, true);
+            if (geodata) {
+              this.addTracksFromGeodataArray(geodata);
+            } else {
+                var this_ = this;
+                this.showDownloadSpinner();
+                // TODO: first try direct request, fallback to proxy if CORS not available
+                // FIXME: error if https and using proxy and with other schemas
+                var url_for_request = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
+                var name = url
+                           .split('#')[0]
+                           .split('?')[0]
+                           .replace(/\/*$/, '')
+                           .split('/')
+                           .pop();
+                get(url_for_request, 'arraybuffer').done(function(xhr) {
+                    var geodata;
+                    if (xhr.status === 200) {
+                        var data = arrayBufferToString(xhr.response);
+                        geodata = L.Util.parseGeoFile(name, data);
+
+                    } else {
+                        geodata = [{name: url, error: 'NETWORK'}];
+                    }
+                    this_.hideDownloadSpinner();
+                    this_.addTracksFromGeodataArray(geodata);
+
+                }, function() {
+                    var geodata = [{name: url, error: 'NETWORK'}];
+                    this_.hideDownloadSpinner();
+                    this_.addTracksFromGeodataArray(geodata);
                 });
+            }
         }
         this.url_field.value = '';
     },
 
-    addTrackFromFileData: function(name, url, text) {
-        var geo_data = L.Util.parseTrackFile(text, name);
-        var color = this.getNextColor();
-        if (geo_data && geo_data.tracks) {
-            var track = new L.Control.TrackList.Track(geo_data.tracks, this._map, color);
-            var list_item = new L.Control.TrackList.ListItem(this.elements_grid, name, url, color);
-            this._tracks.push(track);
-            list_item.on('visibilitychanged', function(e){track.setVisibility(e.visible);});
-            list_item.on('remove', function() {this.removeTrack(track, list_item);}, this);
-            list_item.on('focus', track.zoomMapToTrack, track);
-            list_item.on('colorchanged', function(e) {track.setColor(e.color);}, track);
+    hideDownloadSpinner: function() {
+        L.DomUtil.removeClass(this.download_button, 'hidden');
+        L.DomUtil.addClass(this.progress_unknown_icon, 'hidden');
+    },
+
+    showDownloadSpinner: function() {
+        L.DomUtil.addClass(this.download_button, 'hidden');
+        L.DomUtil.removeClass(this.progress_unknown_icon, 'hidden');
+    },
+
+    addTracksFromGeodataArray: function(geodata_array) {
+        var messages = [];
+        geodata_array.forEach(function(geodata) {
+        //for (var i=0; i < geodata_array.length; i++) {
+          //  var geodata = geodata_array[i];
+            if (geodata.tracks && geodata.tracks.length) {
+                var color = this.getNextColor();
+                var track = new L.Control.TrackList.Track(geodata.tracks, this._map, color);
+                var list_item = new L.Control.TrackList.ListItem(this.elements_grid, geodata.name, color);
+                this._tracks.push(track);
+                list_item.on('visibilitychanged', function(e) {track.setVisibility(e.visible)});
+                list_item.on('remove', function() {this.removeTrack(track, list_item)}, this);
+                list_item.on('focus', track.zoomMapToTrack, track);
+                list_item.on('colorchanged', function(e) {track.setColor(e.color);}, track);
+            }
+
+            var data_empty = !geodata.tracks;
+            var error_messages = {
+                'CORRUPT': 'File "{name}" is corrupt',
+                'UNSUPPORTED': 'File "{name}" has unsupported format or is badly corrupt',
+                'NETWORK': 'Could not download file from url "{name}"'
+            };
+            var message;
+            if (geodata.error) {
+                message = error_messages[geodata.error] || geodata.error;
+                if (data_empty) {
+                    message += ', no data could be loaded';
+                } else {
+                    message += ', loaded data can be invalid or incomplete';
+                }
+            } else if (data_empty) {
+                message = 'File "{name}" contains no data';
+            }
+            if (message) {
+                message = format(message, {name: geodata.name});
+                messages.push(message);
+            }
+        }.bind(this));
+        if (messages.length) {
+            alert(messages.join('\n'));
         }
     },
 
@@ -109,29 +179,21 @@ L.Control.TrackList = L.Control.extend({
                     var raw = arrayBufferToString(req.response);
                     _this.addTrackFromFileData(name, url, raw);
                 });
-    },
-
-    // file -- js file object as retrievd from file input`s property "files"'
-    addTrackFromFile: function(file) {
-        var _this = this;
-        readFile(file).done(
-                function(resp){
-                    _this.addTrackFromFileData(resp.name, null, arrayBufferToString(resp.data));
-                }.bind(this));
     }
+
 });
 
 
 L.Control.TrackList.ListItem = L.Class.extend({
     includes: L.Mixin.Events,
 
-    initialize: function(parent, name, url, color) {
+    initialize: function(parent, name, color) {
         var el = this.element = L.DomUtil.create('div', 'leaflet-control-tracklist-row', parent);
         el.innerHTML = '\
             <div class="leaflet-control-tracklist-item-row">\
                 <input type="checkbox" checked="checked" class="leaflet-control-tracklist-visibility">\
                 <div class="leaflet-control-tracklist-color" style="background-color: #f00"></div>\
-                <span class="leaflet-control-tracklist-trackname" title="' + (url || name) + '">' + name + '</span>\
+                <span class="leaflet-control-tracklist-trackname" title="' + name + '">' + name + '</span>\
                 <a class="leaflet-control-tracklist-delete" title="Remove track">X</a>\
             </div>\
             ';

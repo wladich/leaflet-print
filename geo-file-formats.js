@@ -1,25 +1,32 @@
 /* global L */
 "use strict";
 
-L.Util.parseGpx = function(txt){
-    var getSegmentPoints = function(xml){
-        var points_elements = xml.getElementsByTagName('trkpt');
+L.Util.parseGpx = function(txt, name){
+    var error;
+    var getSegmentPoints = function(segment_element){
+        var points_elements = segment_element.getElementsByTagName('trkpt');
         var points = [];
         for (var i = 0; i < points_elements.length; i++) {
             var point_element = points_elements[i];
             var lat = parseFloat(point_element.getAttribute('lat'));
             var lng = parseFloat(point_element.getAttribute('lon'));
-            if (isNaN(lat) || isNaN(lng)) break;
+            if (isNaN(lat) || isNaN(lng)) {
+                error = 'CORRUPT';
+                break;
+            }
             points.push({lat: lat, lng: lng});
         }
         return points;
     };
     
     var getTrackSegments = function(xml) {
-        var segments_elements = xml.getElementsByTagName('trkseg');
         var segments = [];
+        var segments_elements = xml.getElementsByTagName('trkseg');
         for (var i = 0; i < segments_elements.length; i++) {
-            segments.push(getSegmentPoints(segments_elements[i]));
+            var segment_points = getSegmentPoints(segments_elements[i]);
+            if (segment_points.length) {
+                segments.push(segment_points);
+            }
         }
         return segments;
     };
@@ -27,28 +34,36 @@ L.Util.parseGpx = function(txt){
     txt = txt.replace(/<([^ >]+):([^ >]+)/g, '<$1_$2');
     var dom = (new DOMParser()).parseFromString(txt,"text/xml");
     if (dom.documentElement.nodeName == 'parsererror') {
-        throw "Not a GPX file";
+        return null;
     }
     if (dom.getElementsByTagName('gpx').length === 0) {
-        throw "Not a GPX file";
+        return null;
     }
-    return {tracks: getTrackSegments(dom)};
+    return [{name: name, tracks: getTrackSegments(dom), error: error}];
 };
 
-L.Util.parseOziPlt = function(txt) {
+
+L.Util.parseOziPlt = function(txt, name) {
+    var error;
+    var segments = [];
     var lines = txt.split('\n');
     if (lines[0].indexOf('OziExplorer Track Point File') !== 0) {
-        throw "Not an OZI track file";
+        return null;
     }
-    var segments = [];
+    var expected_points_num = parseInt(lines[5], 10);
     var current_segment = [];
+    var total_points_num = 0;
     for (var i = 6; i < lines.length; i++) {
         var line = lines[i].trim();
+        if (!line) {
+            continue;
+        }
         var fields = line.split(',');
         var lat = parseFloat(fields[0]);
         var lon = parseFloat(fields[1]);
         var is_start_of_segment = parseInt(fields[2], 10);
         if (isNaN(lat) || isNaN(lon) || isNaN(is_start_of_segment)) {
+            error = 'CORRUPT';
             break;
         }
         if (is_start_of_segment) {
@@ -58,13 +73,19 @@ L.Util.parseOziPlt = function(txt) {
             segments.push(current_segment);
         }
         current_segment.push({lat: lat, lng:lon});
+        total_points_num += 1;
     }
-    return {tracks: segments};
+    if (isNaN(expected_points_num) || expected_points_num != total_points_num) {
+        error = 'CORRUPT';
+    }
+    return [{name: name, tracks: segments, error: error}];
 };
 
-L.Util.parseKml = function(txt) {
-    var getSegmentPoints = function(xml){
-        var coordinates_string = Array.prototype.slice.call(xml.childNodes)
+L.Util.parseKml = function(txt, name) {
+    var error;
+    var getSegmentPoints = function(coordinates_element){
+        // convert multiline text value of tag to single line
+        var coordinates_string = Array.prototype.slice.call(coordinates_element.childNodes)
             .map(function(node) {return node.nodeValue;})
             .join('');
         var points_strings = coordinates_string.split(/\s+/);
@@ -75,6 +96,7 @@ L.Util.parseKml = function(txt) {
                 var lat = parseFloat(point[1]);
                 var lng = parseFloat(point[0]);
                 if (isNaN(lat) || isNaN(lng)) {
+                    error = 'CORRUPT';
                     break;
                 }
                 points.push({lat: lat, lng: lng});
@@ -88,8 +110,11 @@ L.Util.parseKml = function(txt) {
         var segments = [];
         for (var i = 0; i < segments_elements.length; i++) {
             var coordinates_element = segments_elements[i].getElementsByTagName('coordinates');
-            if (coordinates_element.length > 0) {
-                segments.push(getSegmentPoints(coordinates_element[0]));
+            if (coordinates_element.length) {
+                var segment_points = getSegmentPoints(coordinates_element[0]);
+                if (segment_points.length) {
+                    segments.push(segment_points);
+                }
             }
         }
         return segments;
@@ -98,65 +123,119 @@ L.Util.parseKml = function(txt) {
     txt = txt.replace(/<([^ >]+):([^ >]+)/g, '<$1_$2');
     var dom = (new DOMParser()).parseFromString(txt,"text/xml");
     if (dom.documentElement.nodeName == 'parsererror') {
-        throw "Not a KML file";
+        return null;
     }
     if (dom.getElementsByTagName('Document').length === 0) {
-        throw "Not a KML file";
+        return null;
     }
-    
-    return {tracks: getTrackSegments(dom)};
+
+    return [{name: name, tracks: getTrackSegments(dom), error: error}];
 };
 
-L.Util.parseKmz = function(txt) {
+L.Util.parseKmz = function(txt, name) {
     var uncompressed;
     var unzipper = new JSUnzip(txt);
     if (!unzipper.isZipFile()) {
-        throw "Not a KMZ file"
+        return null;
     }
     unzipper.readEntries();
     for (var i=0; i < unzipper.entries.length; i++) {
         var entry = unzipper.entries[i];
         if (entry.fileName === 'doc.kml') {
             if (entry.uncompressedSize > 10000000) {
-                throw "KML in KMZ is too big";
+                return null;
             }
             if (entry.compressionMethod === 0) {
                 uncompressed = entry.data;
             } else if (entry.compressionMethod === 8) {
                 uncompressed = RawDeflate.inflate(entry.data);
             } else {
-                throw 'Bad zip file';
-            }
-            return L.Util.parseTrackFile(uncompressed, 'doc.kml');
-        }
-    }
-    throw "Not a KMZ file";
-};
-
-L.Util.parseTrackFile = function(data, filename) {
-        var parsers = {
-                'gpx': L.Util.parseGpx,
-                'plt': L.Util.parseOziPlt,
-                'kml': L.Util.parseKml,
-                'kmz': L.Util.parseKmz
-            };
-        var ext = filename.split('.').pop().toLowerCase();
-        var track;
-        if (ext in parsers) {
-            var parser = parsers[ext];
-            try {
-                var geo_data = parser(data);
-                if (!geo_data.tracks.length) {
-                    alert('File contains no tracks');
-                    return null;
-                }
-                return geo_data;
-            } catch (e) {
-                alert('Could not load file: ' + e);
                 return null;
             }
+            var geodata = L.Util.parseKml(uncompressed, 'doc.kml');
+            if (geodata) {
+                geodata[0].name = name;
+            } else {
+                geodata = [{name: name, error: 'CORRUPT'}];
+            }
+            return geodata;
+        }
+    }
+    return null;
+};
+
+L.Util.parseGeoFile = function(name, data, null_if_unsupported) {
+    var parsers = [
+        L.Util.parseKmz,
+        L.Util.parseZip,
+        L.Util.parseGpx,
+        L.Util.parseOziPlt,
+        L.Util.parseKml,
+        L.Util.parseYandexRulerUrl
+    ];
+    for (var i=0; i<parsers.length; i++) {
+        var parsed = parsers[i](data, name);
+        if (parsed !== null) {
+            return parsed;
+        }
+    }
+    if (null_if_unsupported) {
+        return null;
+    } else {
+        return [{name: name, error: 'UNSUPPORTED'}];
+    }
+};
+
+L.Util.parseYandexRulerUrl = function(s) {
+    var re = /^\s*https?:\/\/maps\.yandex\..+[?&]rl=([^&]+).*?$/;
+    if (!(re.test(s))) {
+        return null;
+    }
+    var error;
+    var points = [];
+    var last_lat = 0;
+    var last_lng = 0;
+    s = s.replace(re, "$1");
+    var points_str = s.split('~');
+    for (var i=0; i < points_str.length; i++) {
+        var point = points_str[i].split('%2C');
+        var lng = parseFloat(point[0]);
+        var lat = parseFloat(point[1]);
+        if (isNaN(lat) || isNaN(lng)) {
+            error = 'CORRUPT';
+            break;
+        }
+        last_lng += lng;
+        last_lat += lat;
+        points.push({lat: last_lat, lng: last_lng});
+    }
+    var segments;
+    if (points.length) {
+        segments = [points];
+    }
+    return [{name: 'Yandex ruler', error: error, tracks: segments}];
+};
+
+L.Util.parseZip = function(txt, name) {
+    var unzipper = new JSUnzip(txt);
+    if (!unzipper.isZipFile()) {
+        return null;
+    }
+    unzipper.readEntries();
+    var geodata_array = [];
+    for (var i=0; i < unzipper.entries.length; i++) {
+        var entry = unzipper.entries[i];
+        var uncompressed;
+        if (entry.compressionMethod === 0) {
+            uncompressed = entry.data;
+        } else if (entry.compressionMethod === 8) {
+            uncompressed = RawDeflate.inflate(entry.data);
         } else {
-            alert('Could not load file, unknown extension');
             return null;
         }
+        var file_name = name + '/' + entry.fileName;
+        var geodata = L.Util.parseGeoFile(file_name, uncompressed);
+        geodata_array.push.apply(geodata_array, geodata);
+    }
+    return geodata_array;
 };
