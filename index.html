@@ -60,6 +60,8 @@
                  'OpenStreetMap': L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {'scaleDependent': true}),
                  'ESRI Sat': L.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
                     {maxZoom: 18, maxNativeZoom: 17}),
+                 'MapBox Sat': L.tileLayer('http://{s}.tiles.mapbox.com/v3/openstreetmap.map-4wvf9l0l/{z}/{x}/{y}.png', 
+                    {maxZoom: 18, maxNativeZoom: 17}),
                  'Yandex': new L.Yandex('map', {yandexMapAutoSwitch: false, 'scaleDependent': true, noCors: true}),
                  'Yandex Public': new L.Yandex('publicMap', {'scaleDependent': true, noCors: true}),
                  'Yandex Sat': new L.Yandex('satellite', {noCors: true}),
