@@ -166,21 +166,6 @@ L.Control.TrackList = L.Control.extend({
         var i = this._tracks.indexOf(track);
         this._tracks.splice(i, 1);
     },
-
-    addTrackFromUrl: function(url) {
-        // TODO: first try direct request, fallback to proxy if CORS not available
-        // FIXME: error if https and using proxy and with other schemas
-        var url_for_request = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
-        var name = url.split('/').pop();
-        var _this = this;
-        // TODO: Add retries for errors
-        return get(url_for_request, 'arraybuffer').then(
-                function(req) {
-                    var raw = arrayBufferToString(req.response);
-                    _this.addTrackFromFileData(name, url, raw);
-                });
-    }
-
 });
 
 
