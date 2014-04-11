@@ -4,12 +4,15 @@
 L.Control.TrackList = L.Control.extend({
     options: {position: 'bottomright'},
     
-    parsers: {
-        'gpx': L.Util.parseGpx,
-        'plt': L.Util.parseOziPlt
-    },
-
     colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
+
+    proxyfyUrl: function(url) {
+        var proxy = 'http://www.corsproxy.com/';
+        if (url.match(/^https?:\/\/maps.yandex\.(com|ru)/)) {
+            proxy = 'http://proxy.wladich.tk/';
+        }
+        return url.replace(/^https?:\/\//, proxy);
+    },
 
     onAdd: function(map){
         this._map = map;
@@ -73,7 +76,7 @@ L.Control.TrackList = L.Control.extend({
                 this.showDownloadSpinner();
                 // TODO: first try direct request, fallback to proxy if CORS not available
                 // FIXME: error if https and using proxy and with other schemas
-                var url_for_request = url.replace(/^http:\/\//, 'http://www.corsproxy.com/');
+                var url_for_request = this.proxyfyUrl(url);
                 var name = url
                            .split('#')[0]
                            .split('?')[0]
@@ -128,7 +131,7 @@ L.Control.TrackList = L.Control.extend({
                 list_item.on('colorchanged', function(e) {track.setColor(e.color);}, track);
             }
 
-            var data_empty = !geodata.tracks;
+            var data_empty = !(geodata.tracks &&  geodata.tracks.length);
             var error_messages = {
                 'CORRUPT': 'File "{name}" is corrupt',
                 'UNSUPPORTED': 'File "{name}" has unsupported format or is badly corrupt',

@@ -171,7 +171,8 @@ L.Util.parseGeoFile = function(name, data, null_if_unsupported) {
         L.Util.parseGpx,
         L.Util.parseOziPlt,
         L.Util.parseKml,
-        L.Util.parseYandexRulerUrl
+        L.Util.parseYandexRulerUrl,
+        L.Util.parseYandexMap
     ];
     for (var i=0; i<parsers.length; i++) {
         var parsed = parsers[i](data, name);
@@ -186,19 +187,15 @@ L.Util.parseGeoFile = function(name, data, null_if_unsupported) {
     }
 };
 
-L.Util.parseYandexRulerUrl = function(s) {
-    var re = /^\s*https?:\/\/maps\.yandex\..+[?&]rl=([^&]+).*?$/;
-    if (!(re.test(s))) {
-        return null;
-    }
-    var error;
-    var points = [];
+L.Util.parseYandexRulerString = function(s) {
     var last_lat = 0;
     var last_lng = 0;
-    s = s.replace(re, "$1");
+    var error;
+    var points = [];
+    s = s.replace(/%2C/ig, ',');
     var points_str = s.split('~');
     for (var i=0; i < points_str.length; i++) {
-        var point = points_str[i].split('%2C');
+        var point = points_str[i].split(',');
         var lng = parseFloat(point[0]);
         var lat = parseFloat(point[1]);
         if (isNaN(lat) || isNaN(lng)) {
@@ -209,11 +206,17 @@ L.Util.parseYandexRulerUrl = function(s) {
         last_lat += lat;
         points.push({lat: last_lat, lng: last_lng});
     }
-    var segments;
-    if (points.length) {
-        segments = [points];
+    return {error: error, points: points};
+};
+
+L.Util.parseYandexRulerUrl = function(s) {
+    var re = /^\s*https?:\/\/maps\.yandex\..+[?&]rl=([^&]+).*?$/;
+    if (!(re.test(s))) {
+        return null;
     }
-    return [{name: 'Yandex ruler', error: error, tracks: segments}];
+    s = s.replace(re, "$1");
+    var res = L.Util.parseYandexRulerString(s);
+    return [{name: 'Yandex ruler', error: res.error, tracks: [res.points]}];
 };
 
 L.Util.parseZip = function(txt, name) {
@@ -238,4 +241,60 @@ L.Util.parseZip = function(txt, name) {
         geodata_array.push.apply(geodata_array, geodata);
     }
     return geodata_array;
+};
+
+L.Util.parseYandexMap = function(txt) {
+    var start_tag = '<script id="vpage" type="application/json">';
+    var json_start = txt.indexOf(start_tag);
+    if (json_start === -1) {
+        return null;
+    }
+    json_start += start_tag.length;
+    var json_end = txt.indexOf('</script>', json_start);
+    if (json_end === -1) {
+        return null;
+    }
+    var map_data = txt.substring(json_start, json_end);
+    map_data = JSON.parse(map_data);
+    console.log(map_data);
+    if (!('request' in map_data)) {
+        return null;
+    }
+    var name = 'YandexMap';
+    var segments = [];
+    var error;
+    if (map_data.vpage && map_data.vpage.data && map_data.vpage.data.objects && map_data.vpage.data.objects.length) {
+        //TODO: restore utf-8 strings
+/*
+        if (map_data.vpage.data.name) {
+            name += ': ' + map_data.vpage.data.name;
+        }
+*/
+        map_data.vpage.data.objects.forEach(function(obj){
+            if (obj.pts && obj.pts.length) {
+                var segment = [];
+                for (var i=0; i< obj.pts.length; i++) {
+                    var pt = obj.pts[i];
+                    var lng = parseFloat(pt[0]);
+                    var lat = parseFloat(pt[1]);
+                    if (isNaN(lat) || isNaN(lng)) {
+                        error = 'CORRUPT';
+                        break;
+                    }
+                    segment.push({lat: lat, lng:lng});
+                }
+                if (segment.length) {
+                    segments.push(segment);
+                }
+            }
+        });
+    }
+    if (map_data.request.args && map_data.request.args.rl) {
+        var res = L.Util.parseYandexRulerString(map_data.request.args.rl);
+        error = error || res.error;
+        if (res.points && res.points.length) {
+            segments.push(res.points);
+        }
+    }
+    return [{name: name, error: error, tracks: segments}];
 };
