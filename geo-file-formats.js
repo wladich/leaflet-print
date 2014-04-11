@@ -264,12 +264,9 @@ L.Util.parseYandexMap = function(txt) {
     var segments = [];
     var error;
     if (map_data.vpage && map_data.vpage.data && map_data.vpage.data.objects && map_data.vpage.data.objects.length) {
-        //TODO: restore utf-8 strings
-/*
         if (map_data.vpage.data.name) {
-            name += ': ' + map_data.vpage.data.name;
+            name += ': ' + decodeURIComponent(escape(map_data.vpage.data.name));
         }
-*/
         map_data.vpage.data.objects.forEach(function(obj){
             if (obj.pts && obj.pts.length) {
                 var segment = [];
