@@ -173,6 +173,8 @@ function blendCanvas(src, dest) {
 }
 
 function drawTracks(width, height, ll_bounds, tracks, map, dpi) {
+    var colors = ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'];
+
     var width_mm = 1,
         width_px = width_mm / 25.4 * dpi;
     var tracks_canvas = L.DomUtil.create('canvas');
@@ -184,7 +186,7 @@ function drawTracks(width, height, ll_bounds, tracks, map, dpi) {
         if (track.visible) {
             track.segments.forEach(
                 function(segment){
-                    draw_segment(segment, track.color);
+                    draw_segment(segment, colors[track.color]);
                 });
         }
     }

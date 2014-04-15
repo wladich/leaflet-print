@@ -4,7 +4,8 @@
 L.Control.TrackList = L.Control.extend({
     options: {position: 'bottomright'},
     
-    colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
+    colors_count: 6,
+    _color_index: -1,
 
     proxyfyUrl: function(url) {
         var proxy = 'http://www.corsproxy.com/';
@@ -121,7 +122,7 @@ L.Control.TrackList = L.Control.extend({
         //for (var i=0; i < geodata_array.length; i++) {
           //  var geodata = geodata_array[i];
             if (geodata.tracks && geodata.tracks.length) {
-                var color = this.getNextColor();
+                var color = this.getNextColorIndex();
                 var track = new L.Control.TrackList.Track(geodata.tracks, this._map, color);
                 var list_item = new L.Control.TrackList.ListItem(this.elements_grid, geodata.name, color);
                 this._tracks.push(track);
@@ -158,9 +159,9 @@ L.Control.TrackList = L.Control.extend({
         }
     },
 
-    getNextColor: function() {
-        this._color_index = ((this._color_index | 0) + 1) % this.colors.length;
-        return this.colors[this._color_index];
+    getNextColorIndex: function() {
+        this._color_index = ((this._color_index | 0) + 1) % this.colors_count;
+        return this._color_index;
     },
     
     removeTrack: function(track, list_item) {
@@ -174,6 +175,8 @@ L.Control.TrackList = L.Control.extend({
 
 L.Control.TrackList.ListItem = L.Class.extend({
     includes: L.Mixin.Events,
+
+    colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
     initialize: function(parent, name, color) {
         var el = this.element = L.DomUtil.create('div', 'leaflet-control-tracklist-row', parent);
@@ -213,7 +216,7 @@ L.Control.TrackList.ListItem = L.Class.extend({
     },
 
     setColor: function(color) {
-        this.color_legend.style.backgroundColor = color;
+        this.color_legend.style.backgroundColor = this.colors[color];
     },
 
     setVisibility: function(visible) {
@@ -235,15 +238,20 @@ L.Control.TrackList.ListItem = L.Class.extend({
     },
 
     _getContextmenuItems: function() {
-        var colors = L.Control.TrackList.prototype.colors;
-        return colors.map(function(color) {
-            return {text: '<div style="display: inline-block; vertical-align: middle; width: 50px; height: 4px; background-color: ' + color + '"></div>', callback: this.onSelectNewColor.bind(this, color)};
-        }.bind(this));
+        var items = [];
+        for (var i=0; i < this.colors.length; i++) {
+            items.push({
+                text: '<div style="display: inline-block; vertical-align: middle; width: 50px; height: 4px; background-color: ' + this.colors[i] + '"></div>',
+                callback: this.onSelectNewColor.bind(this, i)});
+        }
+        return items;
     }
 });
 
 L.Control.TrackList.Track = L.Class.extend({
     includes: L.Mixin.Events,
+
+    colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
     initialize: function(segments, map, color) {
         this.segments = segments.map(this._simplifySegment);
@@ -256,11 +264,11 @@ L.Control.TrackList.Track = L.Class.extend({
 */
         this.polylines = this.segments.map(
             function(l) {
-                return L.polyline(l, {color: color});
+                return L.polyline(l);
             });
         this.feature = L.featureGroup(this.polylines);
+        this.setColor(color);
         this.setVisibility(true);
-        this.color = color;
     },
 
     _simplifySegment: function(segment) {
@@ -296,6 +304,7 @@ L.Control.TrackList.Track = L.Class.extend({
     setColor: function(color) {
         if (color !== this.color) {
             this.color = color;
+            color = this.colors[color];
             this.polylines.forEach(
                 function(polyline) {
                     polyline.setStyle({color: color});
