@@ -3,6 +3,9 @@
 
 L.Control.TrackList = L.Control.extend({
     options: {position: 'bottomright'},
+
+    includes: [L.Mixin.Events, L.Mixin.HashState],
+    hashStateChangeEvents: ['change'],
     
     colors_count: 6,
     _color_index: -1,
@@ -124,21 +127,22 @@ L.Control.TrackList = L.Control.extend({
         this._tracks.push(track);
         list_item.on('visibilitychanged', function(e) {
             track.setVisibility(e.visible);
+            this.fire('change');
         }, this);
         list_item.on('remove', function() {
                 this.removeTrack(track);
+                this.fire('change');
             }, this);
         list_item.on('focus', track.zoomMapToTrack, track);
         list_item.on('colorchanged', function(e) {
             track.setColor(e.color);
+            _this.fire('change');
         }, track);
     },
 
     addTracksFromGeodataArray: function(geodata_array) {
         var messages = [];
         geodata_array.forEach(function(geodata) {
-        //for (var i=0; i < geodata_array.length; i++) {
-          //  var geodata = geodata_array[i];
             if (geodata.tracks && geodata.tracks.length) {
                 if (geodata.color === undefined) {
                     geodata.color = this.getNextColorIndex();
@@ -174,6 +178,7 @@ L.Control.TrackList = L.Control.extend({
         if (messages.length) {
             alert(messages.join('\n'));
         }
+        this.fire('change');
     },
 
     getNextColorIndex: function() {
@@ -192,6 +197,69 @@ L.Control.TrackList = L.Control.extend({
         while (this._tracks.length) {
             this.removeTrack(this._tracks[0]);
         }
+    },
+
+    _serializeState: function(){
+        var state = [];
+        state.push(this._tracks.length);
+        this._tracks.forEach(function(track) {
+            state.push.apply(state, track.serializeState());
+        });
+        console.log('Tracks state save', state);
+        return state;
+    },
+
+    _unserializeState: function(values) {
+        console.log('Tracks state load', values);
+        if (!values) {
+            return false;
+        }
+        this.removeAllTracks();
+        var geodata_array = [];
+        var tracks_n = parseInt(values.shift(), 10);
+        if (isNaN(tracks_n)) {
+            return false;
+        }
+        for (var i=0; i < tracks_n; i++) {
+            var geodata = {};
+            if (!values.length) {
+                return false;
+            };
+            geodata.name = decodeUTF8(decodeSafeBase64(values.shift()));
+            geodata.color = parseInt(values.shift(), 10);
+            if (isNaN(geodata.color) || geodata.color < 0 || geodata.color > this.colors_count) {
+                return false;
+            }
+            switch (values.shift()) {
+                case '0':
+                    geodata.visible = false;
+                    break;
+                case '1':
+                    geodata.visible = true;
+                    break;
+                default:
+                    return false;
+            }
+            var segments_n = parseInt(values.shift(), 10);
+            if (isNaN(segments_n)) {
+                return false;
+            }
+            geodata.tracks = [];
+            geodata.serialized = [];
+            for (var j=0; j < segments_n; j++) {
+                var packed_segement = values.shift();
+                var segment = unpackPolyline(packed_segement);
+                if (!segment) {
+                    return false;
+                }
+                geodata.tracks.push(segment);
+                geodata.serialized.push(packed_segement);
+            }
+            geodata_array.push(geodata);
+        }
+
+        this.addTracksFromGeodataArray(geodata_array);
+        return true;
     }
 });
 
@@ -283,8 +351,15 @@ L.Control.TrackList.Track = L.Class.extend({
     colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
     initialize: function(geodata, map) {
-        this.segments = geodata.tracks.map(this._simplifySegment);
         this._map = map;
+        if (geodata.serialized) {
+            this.segments = geodata.tracks;
+        } else {
+            this.segments = geodata.tracks.map(this._simplifySegment);
+        }
+        this.name = geodata.name;
+        this._packed = geodata.serialized;
+
 //// uncomment for debugging or tuning lines simplification
 /*
         segments.forEach(function(segment){
@@ -345,4 +420,20 @@ L.Control.TrackList.Track = L.Class.extend({
         this._map.fitBounds(this.feature.getBounds());
     },
 
+    getPackedSegments: function() {
+        if (!this._packed) {
+            this._packed = this.segments.map(packPolyline);
+        }
+        return this._packed;
+    },
+
+    serializeState: function() {
+        var serialized = [];
+        serialized.push(encodeSafeBase64(encodeUTF8(this.name)));
+        serialized.push(this.color);
+        serialized.push(this.visible ? 1:0);
+        serialized.push(this.segments.length);
+        serialized.push.apply(serialized, this.getPackedSegments());
+        return serialized;
+    }
 });

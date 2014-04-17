@@ -28,6 +28,14 @@ function arrayToString(arr) {
     return s.join('');
 }
 
+function stringToArray(s) {
+    var ar = [];
+    for (var i=0; i < s.length; i++) {
+        ar.push(s.charCodeAt(i));
+    }
+    return ar;
+}
+
 function arrayBufferToString(arBuf) {
     var arr = new Uint8Array(arBuf);
     arr = Array.prototype.slice.call(arr);
@@ -36,6 +44,25 @@ function arrayBufferToString(arBuf) {
 
 function decodeUTF8(s){
     return decodeURIComponent(escape(s));
+}
+
+function encodeUTF8(s){
+  return unescape(encodeURIComponent(s));
+}
+ 
+function encodeSafeBase64(s) {
+    return btoa(s)
+           .replace(/\+/g, '-')
+           .replace(/\//g, '_')
+           .replace(/=/g, '*');
+}
+
+function decodeSafeBase64(s) {
+    s = s
+        .replace(/-/g, '+')
+        .replace(/_/g, '/')
+        .replace(/\*/g, '=');
+    return atob(s);
 }
 
 function readFile(file) {

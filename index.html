@@ -37,6 +37,7 @@
         <script src="print-pages-control.js"></script>
         <script src="tracks-control.js"></script>
         <script src="geo-file-formats.js"></script>
+        <script src="polyline-serialize.js"></script>
 
 
         <style>
@@ -87,6 +88,7 @@
                  var print_pages = new L.Control.PrintPages();
                  print_pages.addTo(map);
                  print_pages.enableHashState('pp', [210,297,3,3,3,3,300,50000,-1]);
+                 print_pages.tracks.enableHashState('tl');
             }
             window.onload = setUpMap;
         </script>        
