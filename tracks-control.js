@@ -116,20 +116,37 @@ L.Control.TrackList = L.Control.extend({
         L.DomUtil.removeClass(this.progress_unknown_icon, 'hidden');
     },
 
+    addTrack: function (geodata) {
+        var _this = this;
+        var track = new L.Control.TrackList.Track(geodata, this._map);
+        var list_item = new L.Control.TrackList.ListItem(geodata, this.elements_grid);
+        track._list_item = list_item;
+        this._tracks.push(track);
+        list_item.on('visibilitychanged', function(e) {
+            track.setVisibility(e.visible);
+        }, this);
+        list_item.on('remove', function() {
+                this.removeTrack(track);
+            }, this);
+        list_item.on('focus', track.zoomMapToTrack, track);
+        list_item.on('colorchanged', function(e) {
+            track.setColor(e.color);
+        }, track);
+    },
+
     addTracksFromGeodataArray: function(geodata_array) {
         var messages = [];
         geodata_array.forEach(function(geodata) {
         //for (var i=0; i < geodata_array.length; i++) {
           //  var geodata = geodata_array[i];
             if (geodata.tracks && geodata.tracks.length) {
-                var color = this.getNextColorIndex();
-                var track = new L.Control.TrackList.Track(geodata.tracks, this._map, color);
-                var list_item = new L.Control.TrackList.ListItem(this.elements_grid, geodata.name, color);
-                this._tracks.push(track);
-                list_item.on('visibilitychanged', function(e) {track.setVisibility(e.visible)});
-                list_item.on('remove', function() {this.removeTrack(track, list_item)}, this);
-                list_item.on('focus', track.zoomMapToTrack, track);
-                list_item.on('colorchanged', function(e) {track.setColor(e.color);}, track);
+                if (geodata.color === undefined) {
+                    geodata.color = this.getNextColorIndex();
+                }
+                if (geodata.visible === undefined) {
+                    geodata.visible = true;
+                }
+                this.addTrack(geodata);
             }
 
             var data_empty = !(geodata.tracks &&  geodata.tracks.length);
@@ -164,9 +181,9 @@ L.Control.TrackList = L.Control.extend({
         return this._color_index;
     },
     
-    removeTrack: function(track, list_item) {
+    removeTrack: function(track) {
+        track._list_item.remove();
         track.remove();
-        this.elements_grid.removeChild(list_item.getElement());
         var i = this._tracks.indexOf(track);
         this._tracks.splice(i, 1);
     },
@@ -178,13 +195,14 @@ L.Control.TrackList.ListItem = L.Class.extend({
 
     colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
-    initialize: function(parent, name, color) {
-        var el = this.element = L.DomUtil.create('div', 'leaflet-control-tracklist-row', parent);
+    initialize: function(geodata, parent_container) {
+        this._parent_container = parent_container;
+        var el = this.element = L.DomUtil.create('div', 'leaflet-control-tracklist-row', parent_container);
         el.innerHTML = '\
             <div class="leaflet-control-tracklist-item-row">\
-                <input type="checkbox" checked="checked" class="leaflet-control-tracklist-visibility">\
+                <input type="checkbox" class="leaflet-control-tracklist-visibility">\
                 <div class="leaflet-control-tracklist-color" style="background-color: #f00"></div>\
-                <span class="leaflet-control-tracklist-trackname" title="' + name + '">' + name + '</span>\
+                <span class="leaflet-control-tracklist-trackname" title="' + geodata.name + '">' + geodata.name + '</span>\
                 <a class="leaflet-control-tracklist-delete" title="Remove track">X</a>\
             </div>\
             ';
@@ -193,12 +211,13 @@ L.Control.TrackList.ListItem = L.Class.extend({
         this.color_legend =  el.querySelector('.leaflet-control-tracklist-color');
         var delete_button = el.querySelector('a.leaflet-control-tracklist-delete');
         var track_name = el.querySelector('.leaflet-control-tracklist-trackname');
-        this.setColor(color);
+        this.setColor(geodata.color);
 
         L.DomEvent.on(this.visibility_checkbox, 'click', this.onVisibilityCheckboxClicked, this);
         L.DomEvent.on(delete_button, 'click', this.onRemoveButtonClicked, this);
         L.DomEvent.on(track_name, 'click', this.onNameClicked, this);
         new L.Contextmenu(this.color_legend, this._getContextmenuItems(), true, false);
+        this.setVisibility(geodata.visible);
         return el;
     },
 
@@ -237,6 +256,10 @@ L.Control.TrackList.ListItem = L.Class.extend({
         this.fire('colorchanged', {color: color});
     },
 
+    remove: function() {
+        this._parent_container.removeChild(this.getElement());
+    },
+
     _getContextmenuItems: function() {
         var items = [];
         for (var i=0; i < this.colors.length; i++) {
@@ -253,8 +276,8 @@ L.Control.TrackList.Track = L.Class.extend({
 
     colors: ['#77f', '#f95', '#0ff', '#f77', '#f7f', '#ee5'],
 
-    initialize: function(segments, map, color) {
-        this.segments = segments.map(this._simplifySegment);
+    initialize: function(geodata, map) {
+        this.segments = geodata.tracks.map(this._simplifySegment);
         this._map = map;
 //// uncomment for debugging or tuning lines simplification
 /*
@@ -267,8 +290,8 @@ L.Control.TrackList.Track = L.Class.extend({
                 return L.polyline(l);
             });
         this.feature = L.featureGroup(this.polylines);
-        this.setColor(color);
-        this.setVisibility(true);
+        this.setColor(geodata.color);
+        this.setVisibility(geodata.visible);
     },
 
     _simplifySegment: function(segment) {
