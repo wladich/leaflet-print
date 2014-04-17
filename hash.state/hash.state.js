@@ -79,16 +79,13 @@
             for (var i=0; i < this._listeners.length; i++) {
                 var key = this._listeners[i][0],
                     callback = this._listeners[i][1];
-                if (key in changed_keys) 
-                    setTimeout((function(){
-                        var key_ = key,
-                            callback_ = callback;
-                        return function(){callback_(state[key_])}
-                        })(), 0);
+                if (key in changed_keys) {
+                    setTimeout(callback.bind(null, state[key]), 0);
+                }
             }
             this._prevState = state;
         }
-    }
+    };
 
     window.addEventListener('hashchange', window.hashState.onHashChanged.bind(window.hashState));
     window.hashState.onHashChanged();
