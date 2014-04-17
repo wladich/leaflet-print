@@ -187,6 +187,12 @@ L.Control.TrackList = L.Control.extend({
         var i = this._tracks.indexOf(track);
         this._tracks.splice(i, 1);
     },
+
+    removeAllTracks: function() {
+        while (this._tracks.length) {
+            this.removeTrack(this._tracks[0]);
+        }
+    }
 });
 
 
