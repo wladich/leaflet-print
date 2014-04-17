@@ -17,9 +17,7 @@ function get(url, responseType){
     });
 }
 
-function arrayBufferToString(arBuf) {
-    var arr = new Uint8Array(arBuf);
-    arr = Array.prototype.slice.call(arr);
+function arrayToString(arr) {
     var s = [];
     var chunk;
     for (var i = 0; i < arr.length; i+=4096) {
@@ -27,10 +25,18 @@ function arrayBufferToString(arBuf) {
         chunk = String.fromCharCode.apply(null,chunk);
         s.push(chunk);
     }
-            
     return s.join('');
 }
 
+function arrayBufferToString(arBuf) {
+    var arr = new Uint8Array(arBuf);
+    arr = Array.prototype.slice.call(arr);
+    return arrayToString(arr);
+}
+
+function decodeUTF8(s){
+    return decodeURIComponent(escape(s));
+}
 
 function readFile(file) {
      return new Promise(function(resolve){

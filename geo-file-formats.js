@@ -265,7 +265,7 @@ L.Util.parseYandexMap = function(txt) {
     var error;
     if (map_data.vpage && map_data.vpage.data && map_data.vpage.data.objects && map_data.vpage.data.objects.length) {
         if (map_data.vpage.data.name) {
-            name += ': ' + decodeURIComponent(escape(map_data.vpage.data.name));
+            name += ': ' + decodeUTF8(map_data.vpage.data.name);
         }
         map_data.vpage.data.objects.forEach(function(obj){
             if (obj.pts && obj.pts.length) {
