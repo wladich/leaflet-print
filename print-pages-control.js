@@ -316,7 +316,7 @@ L.Control.PrintPages = L.Control.extend({
         var map_units_per_pixel = target_meters_per_pixel / Math.cos(reference_lat * Math.PI / 180);
         var zoom_sat = Math.ceil(Math.log(40075016.4 / 256 / map_units_per_pixel)/Math.LN2);
 
-        target_meters_per_pixel = this.getMapScale() / 100 / (90 / 2.54) ;
+        target_meters_per_pixel = this.getMapScale() / 100 / (90 / 2.54) / 1.5;
         map_units_per_pixel = target_meters_per_pixel / Math.cos(reference_lat * Math.PI / 180);
         var zoom_map = Math.round(Math.log(40075016.4 / 256 / map_units_per_pixel)/Math.LN2);
         return [zoom_sat, zoom_map];
