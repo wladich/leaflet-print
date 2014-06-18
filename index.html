@@ -38,7 +38,7 @@
         <script src="tracks-control.js"></script>
         <script src="geo-file-formats.js"></script>
         <!-- <link rel="stylesheet" href="waypoints.css" /> -->
-
+        <script src="leaflet.soviet-topomaps-grid.js"></script>
 
         <style>
             body, html, #map {
@@ -57,7 +57,8 @@
                 "ArbaletMO": new L.TileLayer("http://tiles.wladich.tk/ArbaletMO/{z}/{x}/{y}",      {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 13}),
                 "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}",          {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14}),
                 "topo1000": new L.TileLayer("http://tiles.wladich.tk/topo1000/{z}/{x}/{y}",          {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 13}),
-                "Slazav map": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}",  {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14})
+                "Slazav map": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}",  {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14}),
+                "Soviet military grid": new L.SovietTopoGrid()
             };
 
             var baseMaps = {
