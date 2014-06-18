@@ -56,6 +56,7 @@
                 "Poehali 10km": new L.TileLayer("http://tiles.wladich.tk/poehali001m/{z}/{x}/{y}", {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 9}),
                 "ArbaletMO": new L.TileLayer("http://tiles.wladich.tk/ArbaletMO/{z}/{x}/{y}",      {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 13}),
                 "topo500": new L.TileLayer("http://tiles.wladich.tk/topo500/{z}/{x}/{y}",          {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14}),
+                "topo1000": new L.TileLayer("http://tiles.wladich.tk/topo1000/{z}/{x}/{y}",          {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 13}),
                 "Slazav map": new L.TileLayer("http://tiles.wladich.tk/map_podm/{z}/{x}/{y}",  {tms: true, minZoom: 0, maxZoom: 18, maxNativeZoom: 14})
             };
 
@@ -73,8 +74,8 @@
                  'Google': new L.Google('ROADMAP', {supports_cors: true, 'scaleDependent': true}),
                  'Google Sat': new L.Google('SATELLITE', {supports_cors: true}),
                  'Google Sat Hybrid': new L.Google('HYBRID', {supports_cors: true, 'scaleDependent': true}),
-                 'Topomapper 1km': L.tileLayer('http://maps.atlogis.com/cgi-bin/tilecache-2.11/tilecache.py/1.0.0/topomapper_gmerc/{z}/{x}/{y}.jpg',
-                    {maxZoom: 18, maxNativeZoom: 13, noCors: true})
+                 'Topomapper 2km': L.tileLayer('http://maps.atlogis.com/cgi-bin/tilecache-2.11/tilecache.py/1.0.0/topomapper_gmerc/{z}/{x}/{y}.jpg',
+                    {maxZoom: 18, maxNativeZoom: 12, noCors: true})
             }
 
             
