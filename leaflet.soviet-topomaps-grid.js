@@ -141,7 +141,7 @@
 											noClip: true,
 											clickable: false,
 											fill: false,
-											opacity: 0.3,
+											opacity: {1: 0.7, 2: 0.4}[layer],
 											color: color,
 											weight: {1: 1, 2: 3}[layer]
 								};
@@ -254,23 +254,21 @@
 			'	line-height: 50px;'+
 			'	font-family: "Times New Roman";'+
 			'	font-weight: bold;'+
-			'	text-shadow: 1px 0 0 #fff,'+
-			'                 1px 1px 0 #fff,'+
-			'                 0 1px 0 #fff,'+
-			'                 -1px 1px 0 #fff,'+
-			'                 -1px 0 0 #fff,'+
-			'                 -1px -1px 0 #fff,'+
-			'                 0 -1px 0 #fff,'+
-			'                 1px -1px 0 #fff;'+
+			'	text-shadow: 1px  0    0.5px #eee,'+
+			'                1px  1px  0.5px   #eee,'+
+			'                0    1px  0.5px   #eee,'+
+			'                -1px 1px  0.5px   #eee,'+
+			'                -1px 0    0.5px   #eee,'+
+			'                -1px -1px 0.5px   #eee,'+
+			'                0    -1px 0.5px   #eee,'+
+			'                1px  -1px 0.5px   #eee;'+
 			'    white-space: nowrap;'+
 			'}'+
 			'.leaflet-sovietgrid-quadtitle-1 {'+
 			'	font-size: 14px;'+
-			'	opacity: 0.7;'+
 			'}'+
 			'.leaflet-sovietgrid-quadtitle-2 {'+
 			'	font-size: 32px;'+
-			'	opacity: 0.6;'+
 			'}';
 		var st = document.createElement('style');
 		st.appendChild(document.createTextNode(css));
