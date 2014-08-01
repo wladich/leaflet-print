@@ -8,8 +8,10 @@
         <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"> </script> 
 
         <link rel="stylesheet" href="leaflet/leaflet.css" />
-        <link rel="stylesheet" href="printpages.css" />
         <script src="leaflet/leaflet-src.js"></script>
+
+        <link rel="stylesheet" href="printpages.css" />
+
         <script src="thirdparty/promise-3.2.0.js"></script>
         <script src="thirdparty/Blob.js"></script>        
         <script src="thirdparty/FileSaver.js"></script>
@@ -40,6 +42,10 @@
         <!-- <link rel="stylesheet" href="waypoints.css" /> -->
         <script src="leaflet.soviet-topomaps-grid.js"></script>
 
+        <link rel="stylesheet" href="http://leaflet.github.io/Leaflet.draw/leaflet.draw.css" />
+        <script src="http://leaflet.github.io/Leaflet.draw/leaflet.draw.js"></script>
+        <script src="thirdparty/Distance.js"></script>
+        <link rel="stylesheet" href="thirdparty/distance.css" />
         <style>
             body, html, #map {
              height: 100%;
@@ -88,9 +94,13 @@
                  layers.addTo(map);
                  layers.enableHashState('l', [baseMaps['OpenStreetMap']._leaflet_id]);
                  
+                 map.addControl(new L.Control.Scale({position: "topleft", imperial: false}));
+
                  var print_pages = new L.Control.PrintPages();
                  print_pages.addTo(map);
                  print_pages.enableHashState('pp', [210,297,3,3,3,3,300,50000,-1]);
+
+                 map.addControl(new L.Control.Distance({popups: false}));
             }
             window.onload = setUpMap;
         </script>        
